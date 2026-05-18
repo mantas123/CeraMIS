@@ -1,8 +1,9 @@
 <div align="center">
 <img src="logo.png" width="300" alt="CeraMIS Logo">
-Ceramic Microstructure & Impedance Suite
+    
+### Ceramic Microstructure & Impedance Suite
 </div>
-### Visapusiška Kietųjų Elektrolitų Charakterizavimo ir Mikromorfologinės Analizės Sistema
+### Keramikos Mikrostruktūros ir Impedanso Sistema
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![UI Framework](https://img.shields.io/badge/UI-Tkinter%20%2F%20Matplotlib-orange.svg)](https://docs.python.org/3/library/tkinter.html)
