@@ -5,7 +5,7 @@
 ## Pagrindinės Funkcijos
 
 *   **Interaktyvus Žymėjimas:** Dešiniuoju pelės mygtuku (arba kairiuoju, priklausomai nuo Matplotlib konfigūracijos) apibrėžkite stačiakampį aplink dominantį Nyquist lanką.
-*   **Apskritimo Aproksimacija (Least Squares Fit):** Modulis automatiškai pritaiko mažiausių kvadratų metodą (Least Squares) ir aproksimuoja pasirinktą lanką tobulu apskritimu.
+*   **Apskritimo Aproksimacija (Least Squares Fit):** Modulis automatiškai pritaiko mažiausių kvadratų metodą (Least Squares) ir aproksimuoja pasirinktą lanką apskritimu.
 *   **Fizikinių Parametrų Išgavimas:** 
     *   Išskaičiuojama varža **R** (tarp lanko kirtimosi su X ašimi taškų).
     *   Apskaičiuojamas slopinimo koeficientas **n** (CPE elemento).

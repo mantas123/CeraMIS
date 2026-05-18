@@ -78,23 +78,40 @@ graph TD
 ### 🔬 B. 3D SEM Paviršiaus Topografija ir Skilimo Analizė
 Šis modulis rekonstruoja realų 3D paviršiaus reljefą iš vienos 2D SEM mikrografijos, naudodamas šviesumo-aukščio intensyvumo modelį (**Shape from Shading** supaprastinimą).
 
-#### 1. Gylio (Z) matricos generavimas:
-Kiekvienam nuotraukos pikseliui $(x, y)$ priskiriamas santykinis gylis $Z$, tiesiogiai proporcingas jo pilkumo skalės (greyscale) šviesumui:
+#### 1. Gylio ($z$) matricos generavimas:
+Kadangi SEM antrinių elektronų intensyvumas (pikselio šviesumas nuo 0 iki 255) yra tiesiogiai susijęs su kietojo elektrolito lūžio paviršiaus polinkio kampu, pilkumo skalės vertės yra tiesiogiai konvertuojamos į santykinį gylio ($z$) žemėlapį mikrometrais:
 
-$$Z(x, y) = I_{\text{grey}}(x, y) \cdot \text{šiurkštumo\_daugiklis}$$
+$$z_{\text{um}} = I(x, y) \times \frac{w}{255} \times 0.1 \times \text{scale}$$
 
-*   $I_{\text{grey}}(x, y) \in [0, 255]$ – pilkumo kanalo intensyvumas. Šviesesnės sritys (kurios SEM nuotraukoje atspindi iškilusias briaunas) tampa viršūnėmis, o tamsesnės (šešėliai, poros, grūdelių ribos) – slėniais.
+*   $I(x, y)$ – pilkumo kanalo intensyvumas ($I(x, y) \in [0, 255]$). Šviesesnės sritys (kurios SEM nuotraukoje atspindi iškilusias briaunas) tampa viršūnėmis, o tamsesnės (šešėliai, poros, grūdelių ribos) – slėniais.
+*   $w$ – vaizdo plotis pikseliais.
+*   $\text{scale}$ – pikselio dydžio santykis su realiu masteliu ($px \to \mu\text{m}$).
 
-#### 2. 3D tinklelio braižymas PyVista:
-1.  Pikselių koordinatės $(X, Y)$ paverčiamos realiais mikrometrais ($\mu\text{m}$) naudojant įvestą mastelio baro kalibraciją.
-2.  Sukuriamas struktūrizuotas trimatis VTK tinklas:
-    `grid = pv.StructuredGrid(X_coords, Y_coords, Z_coords)`
-3.  Tinklas tekstūruojamas originalia SEM spalvota nuotrauka, suteikiant itin tikrovišką vaizdą.
+#### 2. 3D Paviršiaus Plotas ($A_{3D}$):
+Kiekvieno grūdelio realus trimatis plotas skaičiuojamas skaitmeniškai integruojant erdvinį gradientą per visą grūdelio kaukės sritį:
+
+$$A_{3D} = \iint_{\text{Mask}} \sqrt{1 + \left(\frac{\partial z}{\partial x}\right)^2 + \left(\frac{\partial z}{\partial y}\right)^2} \,dx\,dy$$
+
+*(išvestinės $\frac{\partial z}{\partial x}$ ir $\frac{\partial z}{\partial y}$ apskaičiuojamos naudojant antros eilės centrinių skirtumų metodą `np.gradient`).*
 
 #### 3. Šiurkštumo ($R_a$, $R_q$) skaičiavimas:
 Paviršiaus šiurkštumas skaičiuojamas visam pavyzdžiui (globalus) arba kiekvienam AI segmentuotam grūdeliui atsektose ribose:
 *   **Vidutinis aritmetinis šiurkštumas ($R_a$)**:
-    $$R_a = \frac{1}{N} \sum_{i=1}^{N} |Z_i - \bar{Z}|$$
+    Skaičiuojamas kaip vidutinis absoliutus gylio verčių nuokrypis nuo grūdelio paviršiaus vidurkio:
+    $$R_a = \frac{1}{N} \sum_{i=1}^{N} |z_i - \bar{z}|$$
 *   **Vidutinis kvadratinis šiurkštumas ($R_q$)**:
-    $$R_q = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (Z_i - \bar{Z})^2}$$
-    kur $\bar{Z}$ – vidutinis pavyzdžio (arba konkretaus grūdelio) aukštis, o $N$ – taškų skaičius.
+    $$R_q = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (z_i - \bar{z})^2}$$
+    kur $\bar{z}$ – vidutinis pavyzdžio (arba konkretaus grūdelio) aukštis, o $N$ – taškų skaičius.
+
+#### 4. Skilimo Mechanizmo Klasifikacija:
+Programa automatiškai identifikuoja, ar kietasis elektrolitas lūžo per grūdelių ribas (**Intergranuliarinis skilimas**), ar tiesiai per pačius grūdelius (**Transgranuliarinis skilimas**):
+*   Taikoma kaukės erozija, leidžianti išskirti grūdelio centrą (Interior) ir pakraštį (Boundary).
+*   Apskaičiuojamas gylio skirtumas tarp šių dviejų zonų:
+    $$\Delta Z = \bar{Z}_{\text{interior}} - \bar{Z}_{\text{boundary}}$$
+*   Jei $\Delta Z > 0.5\,\mu\text{m}$, skilimas klasifikuojamas kaip *Stipriai Intergranuliarinis*, jei $\Delta Z < -0.5\,\mu\text{m}$ – *Transgranuliarinis*, o tarpinėse reikšmėse – *Mišrus*.
+
+#### 5. 3D tinklelio braižymas PyVista:
+1.  Pikselių koordinatės $(X, Y)$ paverčiamos realiais mikrometrais ($\mu\text{m}$) naudojant įvestą mastelio baro kalibraciją.
+2.  Sukuriamas struktūrizuotas trimatis VTK tinklas:
+    `grid = pv.StructuredGrid(X_coords, Y_coords, Z_coords)`
+3.  Tinklas tekstūruojamas originalia SEM spalvota nuotrauka, suteikiant tikrovišką vaizdą.

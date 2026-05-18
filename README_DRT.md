@@ -8,7 +8,7 @@
 
 ---
 
-**DRT (Distribution of Relaxation Times) Analizės modulis** – tai pažangus elektrocheminis įrankis, skirtas didelės raiškos poliarizacinių procesų analizei. Jis leidžia atskirti persidengiančius impedanso spektroskopijos (EIS) puslankius (pvz., greitąjį tūrinį laidumą nuo lėtesnio grūdelių ribų laidumo ar dar lėtesnės elektrodų poliarizacijos), nustatyti jų atsipalaidavimo trukmes ($\tau$), apskaičiuoti poliarizacijos varžas ($R$) bei efektyviąsias talpas ($C$), taip pat braižyti **3D DRT žemėlapius** priklausomai nuo temperatūros ir dažnio.
+**DRT (Distribution of Relaxation Times) Analizės modulis** – tai elektrocheminis įrankis, skirtas didelės raiškos poliarizacinių procesų analizei. Jis leidžia atskirti persidengiančius impedanso spektroskopijos (EIS) puslankius (pvz., greitąjį tūrinį laidumą nuo lėtesnio grūdelių ribų laidumo ar dar lėtesnės elektrodų poliarizacijos), nustatyti jų relaksacijos trukmes ($\tau$), apskaičiuoti poliarizacijos varžas ($R$) bei efektyviąsias talpas ($C$), taip pat braižyti **3D DRT žemėlapius** priklausomai nuo temperatūros ir dažnio.
 
 ---
 
@@ -33,7 +33,7 @@ graph TD
 
 ## 📐 Fizikinis ir Matematika Modelis
 
-Didelė dalis elektrocheminių sistemų (ypač kietųjų elektrolitų) pasižymi persidengiančiais puslankiais Naikvisto grafike, todėl standartinis ekvivalentinių grandynų parinkimas tampa nepatikimas. DRT metodas išsprendžia šią problemą, konvertuodamas eksperimentinį impedansą $Z(\omega)$ į tolydų atsipalaidavimo trukmių pasiskirstymą $\gamma(\ln \tau)$ per integralinę lygtį:
+Didelė dalis elektrocheminių sistemų (ypač kietųjų elektrolitų) pasižymi persidengiančiais puslankiais Naikvisto grafike, todėl standartinis ekvivalentinių grandynų parinkimas tampa nepatikimas. DRT metodas išsprendžia šią problemą, konvertuodamas eksperimentinį impedansą $Z(\omega)$ į tolydų relaksacijos trukmių pasiskirstymą $\gamma(\ln \tau)$ per integralinę lygtį:
 
 $$Z(\omega) = R_{\infty} + R_p \int_{-\infty}^{\infty} \frac{\gamma(\ln \tau)}{1 + j \omega \tau} \, d(\ln \tau)$$
 
@@ -47,7 +47,7 @@ Programa šią integraciją atlieka skaitmeniškai, taikydama **Simpsono (Simpso
 $$R = \text{simpson}(y=\gamma, x=\ln \tau)$$
 
 ### 2. Efektyviosios talpos ($C$) apskaičiavimas
-Suradus piko maksimumo atsipalaidavimo trukmę ($\tau_p$), kurioje pasiekiama didžiausia $\gamma$ reikšmė, bei piko integralinę varžą ($R$), efektyvioji proceso talpa ($C$) apskaičiuojama pagal fundamentaliąją laiko konstantos lygtį:
+Suradus piko maksimumo relaksacijos trukmę ($\tau_p$), kurioje pasiekiama didžiausia $\gamma$ reikšmė, bei piko integralinę varžą ($R$), efektyvioji proceso talpa ($C$) apskaičiuojama pagal fundamentaliąją laiko konstantos lygtį:
 
 $$\tau_p = R \cdot C \implies C = \frac{\tau_p}{R}$$
 
@@ -64,9 +64,9 @@ Jei vartotojas nenurodo integravimo rėžių ($\tau_{\min}$ ir $\tau_{\max}$ lau
 3.  Šį dinamiškai išskirtą rėžį automatiškai panaudoja Simpsono integracijai.
 
 ### 2. 3D DRT Žemėlapis (3D Surface Mapping)
-Paspaudus mygtuką **„🗺️ Braižyti 3D DRT“**, sukuriamas akademinis trimatis paviršius:
-*   **Dažnių konvertavimas**: Atsipalaidavimo trukmės $\tau$ paverčiamos į fizikinius dažnius:
+Paspaudus mygtuką **„🗺️ Braižyti 3D DRT“**, sukuriamas išsamus trimatis paviršius:
+*   **Dažnių konvertavimas**: Relaksacijos trukmės $\tau$ paverčiamos į fizikinius dažnius:
     $$f = \frac{1}{2 \pi \tau} \quad (\text{Hz})$$
-*   **Logaritminė interpoliacija**: Kadangi skirtingose temperatūrose dearEIS eksperimento dažnių tinkleliai gali nesutapti, programa atlieka logaritminį interpoliavimą (`np.geomspace` ir `scipy.interpolate.interp1d`) per 200 taškų ašį, sukurdama idealiai tolygų 3D tinklelį.
-*   **Vartymas erdvėje**: Sukuriamas trimatis Matplotlib `plot_surface` grafikas su *viridis* spalvų palete, kurį vartotojas gali sukioti pele visomis kryptimis, stebėdamas, kaip didėjant temperatūrai grūdelių ribų pikas slenka į aukštesnių dažnių sritį (greitėja atsipalaidavimas).
-*   **Momentinis atvaizdavimas**: Išlaikytas interaktyvus mygtukų stabilumas, naudojant dvigubą geometrijos refresh'ą, kad 3D langas atsidarytų idealiai pritaikytas ekrane.
+*   **Logaritminė interpoliacija**: Kadangi skirtingose temperatūrose dearEIS eksperimento dažnių tinkleliai gali nesutapti, programa atlieka logaritminį interpoliavimą (`np.geomspace` ir `scipy.interpolate.interp1d`) per 200 taškų ašį, sukurdama 3D tinklelį.
+*   **Vartymas erdvėje**: Sukuriamas trimatis Matplotlib `plot_surface` grafikas su *viridis* spalvų palete, kurį vartotojas gali sukioti pele visomis kryptimis, stebėdamas, kaip didėjant temperatūrai grūdelių ribų pikas slenka į aukštesnių dažnių sritį (gretėja relaksacija).
+*   **Momentinis atvaizdavimas**: Išlaikytas interaktyvus mygtukų stabilumas, naudojant dvigubą geometrijos refresh'ą, kad 3D langas atsidarytų pritaikytas ekrane.

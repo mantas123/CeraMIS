@@ -7,13 +7,13 @@
 
 ---
 
-**`llto_crystal_viewer.py`** – tai aukšto lygio, autonominis 3D kristalografinės vizualizacijos ir fizikinės simuliacijos įrankis. Jis skirtas tyrinėti ličio jonų kietojo elektrolito Li<sub>3x</sub>La<sub>2/3-x</sub>TiO<sub>3</sub> (LLTO) kristalinę perovskito struktūrą, oktaedrų pasvirusius iškraipymus, gardelės defektus bei temperatūros ir elektrinio lauko valdomą ličio jonų migraciją realiuoju laiku.
+**`llto_crystal_viewer.py`** – tai 3D kristalografinės vizualizacijos ir fizikinės simuliacijos įrankis. Jis skirtas tyrinėti ličio jonų kietojo elektrolito Li<sub>3x</sub>La<sub>2/3-x</sub>TiO<sub>3</sub> (LLTO) kristalinę perovskito struktūrą, oktaedrų pasvirusius iškraipymus, gardelės defektus bei temperatūros ir elektrinio lauko valdomą ličio jonų migraciją realiuoju laiku.
 
 ---
 
 ## ⚙️ Pagrindinis Funkcionalumas ir Architektūra
 
-Simuliatorius apjungia profesionalų 3D braižymo variklį **PyVista** (VTK pagrindu) su **PyQt6** vartotojo sąsaja.
+Simuliatorius apjungia 3D braižymo variklį **PyVista** (VTK pagrindu) su **PyQt6** vartotojo sąsaja.
 
 ```mermaid
 graph TD
@@ -34,7 +34,7 @@ Programa leidžia sumodeliuoti ir tyrinėti net 7 skirtingas kietojo elektrolito
 1.  **Kubinė (Cubic)**: Simetriškiausia perovskito fazė. La, Li ir vakansijos yra visiškai atsitiktinai pasiskirsčiusios kubo kampuose (A-srityse) aplink TiO<sub>6</sub> oktaedrus.
 2.  **Tetragoninė (Tetragonal) ir Ortorombinė (Orthorhombic)**: Simuliuoja sluoksniuotą LLTO struktūrą. Lanthanum-rich sluoksniai išsidėsto kas antrą plokštumą ($z \pmod 2 = 0$), o ličio jonai ir vakansijos telkiasi kitose plokštumose ($z \pmod 2 = 1$).
 3.  **Monoklininė (Monoclinic)**: Žemos simetrijos struktūra su pasuktais ir deformuotais TiO<sub>6</sub> oktaedrais, atspindinti žemos temperatūros fazinius virsmus.
-4.  **Ruddlesden-Popper (n=3)**: Didelio tikslumo sluoksniuota supergardelė. Atkuria trigubus perovskito blokus išilgai Z ašies, atskirtus uolienos druskos (rock-salt) tipo barjero, su pašalintais vertikaliaisiais deguonies ryšiais ties sandūra, imituojant planarines vakansijas.
+4.  **Ruddlesden-Popper (n=3)**: Sluoksniuota supergardelė. Atkuria trigubus perovskito blokus išilgai Z ašies, atskirtus uolienos druskos (rock-salt) tipo barjero, su pašalintais vertikaliaisiais deguonies ryšiais ties sandūra, imituojant planarines vakansijas.
 5.  **Dvynių domenai (Twinned Domains)**: Sukuria dviejų gretimų kristalinių sričių (grūdelių) sandūrą. Dešinioji gardelės pusė yra fiziškai pasukama atsitiktiniu kampu visomis trimis ašimis naudojant Eulerio pasukimo matricas:
     $$\mathbf{R} = \mathbf{R}_z(\theta_z) \mathbf{R}_y(\theta_y) \mathbf{R}_x(\theta_x)$$
 6.  **Amorfinė (Amorphous)**: Netvarki, išsilydžiusi būsena, kur visi atomai yra pastumti atsitiktiniu poslinkio vektoriumi ($\delta \le 0.2\,\text{Å}$).
@@ -71,7 +71,7 @@ $$\Delta t_{\text{interval}} = \max\left(5\text{ ms}, \text{round}\left(30\text{
 ### 3. Elektrinio lauko valdomas dreifas (Drift)
 Įjungus elektrinį lauką išilgai X ašies ($+X$), judėjimo tikimybės pasiskirstymas tampa anizotropinis. Kiekvienai porai priskiriamas svoris:
 *   **Judėjimas su lauku ($+X$)**: Svoris padidinamas iki `20.0` (labai didelė tikimybė).
-*   **Judėjimas prieš lauką ($-X$)**: Svoris sumažinamas iki `0.05` (itin maža tikimybė).
+*   **Judėjimas prieš lauką ($-X$)**: Svoris sumažinamas iki `0.05` (maža tikimybė).
 *   **Judėjimas statmenai laukui ($Y, Z$)**: Svoris yra neutralus (`2.0`).
 
 ### 4. Periodinės ribinės sąlygos (PBC) ir Nepertraukiamas srautas (Inflow / Outflow)
@@ -85,5 +85,5 @@ Kad simuliacija nevyktų tik uždaroje gardelėje (kur greitai visi Li jonai nus
 
 *   **Deguonies langai (Oxygen Windows)**: Apvedami mėlyni pusiau permatomi O<sub>4</sub> kvadratiniai langai (face loops), pro kuriuos Li<sup>+</sup> jonas fiziškai turi praeiti judėdamas iš vienos A-srities į kitą. Tai padeda pamatyti, kaip oktaedrų pasvyrimas susiaurina arba praplečia šiuos langus.
 *   **Domenų riba (Domain Boundary)**: Ryškiai oranžinė plokštuma, vizualizuojanti sandūrą tarp dviejų skirtingos orientacijos grūdelių dvynių režime.
-*   **Fono spalvos keitimas**: Galimybė perjungti tarp didelio kontrastingumo balto fono (profesionaliems mokslo straipsnių paveikslėliams) ir modernaus tamsaus fono (patogiam darbui ekrane).
-*   **Momentinės nuotraukos eksportas**: mygtukas **📷 Eksportuoti PNG** leidžia akimirksniu išsaugoti esamą 3D kameros kampą ir gardelės būseną kaip aukštos rezoliucijos PNG paveikslėlį.
+*   **Fono spalvos keitimas**: Galimybė perjungti tarp didelio kontrastingumo balto fono (mokslo straipsnių paveikslėliams) ir modernaus tamsaus fono (patogiam darbui ekrane).
+*   **Momentinės nuotraukos eksportas**: mygtukas **📷 Eksportuoti PNG** leidžia akimirksniu išsaugoti esamą 3D kameros kampą ir gardelės būseną kaip PNG paveikslėlį.

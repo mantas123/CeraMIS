@@ -1,6 +1,6 @@
 # 🧠 SAM 2.1 Grūdelių Atpažinimo ir 3D Analizės Variklis (`sam2_sem_analyzer.py`)
 
-Naujajame integracijos faile **[sam2_sem_analyzer.py](sam2_sem_analyzer.py)** įdiegta visapusiškai automatizuota ir interaktyvi grūdelių atpažinimo sistema, veikianti ant **Meta Segment Anything 2.1 (SAM 2)** neuroninio tinklo pagrindo.
+Naujajame integracijos faile **[sam2_sem_analyzer.py](sam2_sem_analyzer.py)** įdiegta automatizuota ir interaktyvi grūdelių atpažinimo sistema, veikianti ant **Meta Segment Anything 2.1 (SAM 2)** neuroninio tinklo pagrindo.
 
 Žemiau pateikiamas detalus algoritminis darbo eigos ir funkcionavimo aprašymas:
 
@@ -27,8 +27,7 @@ graph TD
 *   **Kokybės Filtravimas**: Atrenkamos tik tos kaukės, kurių patikimumo koeficientas (IoU score) yra $\ge 0.88$ ir stabilumo balas (stability score) yra $\ge 0.92$.
 
 ### 3. 3D Reljefo Rekonstrukcija (Shape-from-Shading metodas)
-> [!IMPORTANT]
-> **Segment Anything (SAM 2.1)** yra išskirtinai **2D segmentavimo neuroninis tinklas**, kuris nustato grūdelių ribas (kaukas), tačiau pats neatlieka gylio (giliojo) matavimo. 
+> **Segment Anything (SAM 2.1)** yra **2D segmentavimo neuroninis tinklas**, kuris nustato grūdelių ribas (kaukas), tačiau pats neatlieka gylio (giliojo) matavimo. 
 > 
 > Trimatė topografija (3D žemėlapis) yra sukuriama naudojant klasikinį **Shape-from-Shading** (intensyvumo vertimo į gylį) matematinį algoritmą:
 
@@ -49,7 +48,7 @@ Programa automatiškai identifikuoja, ar kietasis elektrolitas lūžo per grūde
 *   Jei $\Delta Z > 0.5\,\mu\text{m}$, skilimas klasifikuojamas kaip *Stipriai Intergranuliarinis*, jei $\Delta Z < -0.5\,\mu\text{m}$ – *Transgranuliarinis*, o tarpinėse reikšmėse – *Mišrus*.
 
 ### 5. Interaktyvus PyQt Korektorius
-Jeigu dirbtinis intelektas praleidžia smulkius grūdelius arba sujungia kelis į vieną, vartotojas gali naudotis pažangiu grafiniu korektoriumi (`InteractiveSAMCorrector`):
+Jeigu dirbtinis intelektas praleidžia smulkius grūdelius arba sujungia kelis į vieną, vartotojas gali naudotis grafiniu korektoriumi (`InteractiveSAMCorrector`):
 *   **Kairysis pelės klavišas**: Prideda naują grūdelį (SAM automatiškai išplečia kaukę pagal paspaustą vietą).
 *   **Dešinysis pelės klavišas**: Pašalina neteisingai aptiktą kaukę.
 *   **Slankikliai**: Kontūro sušvelninimas (Smoothing) per Gauso filtrą ir kaukės neskaidrumo reguliavimas realiuoju laiku.
