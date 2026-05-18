@@ -83,9 +83,9 @@ graph TD
 > Detalų SEM statistikos modulio aprašymą rasite dokumente: **[README_SEM_STATS.md](README_SEM_STATS.md)**.
 
 ### 7. 💎 3D Kristalo Simuliatorius
-*   **LLTO Perovskito Struktūra**: Didelio tikslumo $\text{Li}_{3x}\text{La}_{2/3-x}\text{TiO}_3$ perovskito gardelės vizualizacija su koordinaciniais oktaedrais.
-*   **Ličio Jonų Transporto Simuliacija**: Elektrinio lauko valdomas realaus laiko $\text{Li}^+$ jonų šokinėjimas tarp vakansijų su periodinėmis ribinėmis sąlygomis.
-*   **Grūdelių Ribos ir Langai**: Dviejų skirtingai orientuotų kristalinių sričių sujungimas (dvyniai) bei deguonies langų ($\text{O}_4$ transporto kanalų) vizualizavimas.
+*   **LLTO Perovskito Struktūra**: Didelio tikslumo Li<sub>3x</sub>La<sub>2/3-x</sub>TiO<sub>3</sub> perovskito gardelės vizualizacija su koordinaciniais oktaedrais.
+*   **Ličio Jonų Transporto Simuliacija**: Elektrinio lauko valdomas realaus laiko Li<sup>+</sup> jonų šokinėjimas tarp vakansijų su periodinėmis ribinėmis sąlygomis.
+*   **Grūdelių Ribos ir Langai**: Dviejų skirtingai orientuotų kristalinių sričių sujungimas (dvyniai) bei deguonies langų (O<sub>4</sub> transporto kanalų) vizualizavimas.
 
 > [!TIP]
 > Detalų kristalo simuliatoriaus modulio aprašymą rasite dokumente: **[README_CRYSTAL.md](README_CRYSTAL.md)**.
