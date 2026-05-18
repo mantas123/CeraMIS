@@ -2,8 +2,7 @@
 <img src="logo.png" width="300" alt="CeraMIS Logo">
     
 ### Ceramic Microstructure & Impedance Suite
-</div>
-### Keramikos Mikrostruktūros ir Impedanso Sistema
+#### **Keramikos Mikrostruktūros ir Impedanso Sistema**
 </div>
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
