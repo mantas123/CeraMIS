@@ -8,7 +8,7 @@
 
 ---
 
-**DRT (Distribution of Relaxation Times) Analizės modulis** – tai pažangus elektrocheminis įrankis, skirtas didelės raiškos poliarizacinių procesų analizei. Jis leidžia atskirti persidengiančius impedanso spektroskopijos (EIS) puslankius (pvz., greitąjį tūrinį laidumą nuo lėtesnio grūdelių ribų laidumo ar dar lėtesnės elektrodų poliarizacijos), nustatyti jų atsipalaidavimo trukmes ($\tau$), apskaičiuoti poliarizacijos varžas ($R$) bei efektyviąsias talpas ($C$), taip pat braižyti įspūdingus **3D DRT žemėlapius** priklausomai nuo temperatūros ir dažnio.
+**DRT (Distribution of Relaxation Times) Analizės modulis** – tai pažangus elektrocheminis įrankis, skirtas didelės raiškos poliarizacinių procesų analizei. Jis leidžia atskirti persidengiančius impedanso spektroskopijos (EIS) puslankius (pvz., greitąjį tūrinį laidumą nuo lėtesnio grūdelių ribų laidumo ar dar lėtesnės elektrodų poliarizacijos), nustatyti jų atsipalaidavimo trukmes ($\tau$), apskaičiuoti poliarizacijos varžas ($R$) bei efektyviąsias talpas ($C$), taip pat braižyti **3D DRT žemėlapius** priklausomai nuo temperatūros ir dažnio.
 
 ---
 
