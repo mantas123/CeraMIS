@@ -1,7 +1,6 @@
 <div align="center">
 <img src="logo.png" width="300" alt="CeraMIS Logo">
-
-# 💎 CeraMIS
+Ceramic Microstructure & Impedance Suite
 </div>
 ### Visapusiška Kietųjų Elektrolitų Charakterizavimo ir Mikromorfologinės Analizės Sistema
 
