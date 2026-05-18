@@ -14,9 +14,9 @@
 
 ---
 
-**CeraMIS** – tai specializuota mokslinė programinė įranga, sukurta **Manto Jono Marcinkevičiaus**, skirta Ličio Lantano Titanato (**LLTO**) kietųjų elektrolitų kompleksinei impedanso spektroskopijos (EIS), relaksacijos trukmės pasiskirstymo (DRT), struktūrinės 3D perovsito simuliacijos ir SEM mikrostruktūros dirbtinio intelekto analizei.
+**CeraMIS** – tai programinė įranga, skirta Ličio Lantano Titanato (**LLTO**) kietųjų elektrolitų kompleksinei impedanso spektroskopijos (EIS), relaksacijos trukmės pasiskirstymo (DRT), struktūrinės 3D perovskitų simuliacijos ir SEM mikrostruktūros dirbtinio intelekto analizei.
 
-Ši programa apjungia pažangiausius mašininio mokymosi algoritmus (Meta SAM 3.1) su klasikiniais elektrocheminiais ir kristalografiniais modeliais į vientisą, vartotojui patogią grafinę aplinką.
+Programa apjungia mašininio mokymosi algoritmus (Meta SAM 3.1) su klasikiniais elektrocheminiais ir kristalografiniais modeliais.
 
 ---
 
@@ -41,12 +41,14 @@ graph TD
 *   **Palaikomi Formatai**: Tiesioginis eksperimentinių `.txt`, ZView `.z` bei kelių lapų Excel `.xlsx` failų importas.
 
 > [!TIP]
-> Detalų **fizikinių lygčių (laidumo, skvarbos, modulio, Summerfield skalavimo) bei 3D topografijos bei 3D DRT žemėlapių skaičiavimo** aprašymą rasite dokumente: **[README_EIS_PLOTS.md](README_EIS_PLOTS.md)**.
-
+> Detalų EIS modulių aprašymą rasite dokumente: **[README_EIS_PLOTS.md](README_EIS_PLOTS.md)**.
 
 ### 2. 🌀 Lanko Pločio Analizė
 *   Interaktyvus impedanso puslankių ploties ir jų charakteringųjų dažnių identifikavimas Cole-Cole erdvėje.
 *   Vizualus skirtingų laidumo mechanizmų (tūrinio, grūdelių ribų ir poliarizacijos) atskyrimas.
+
+> [!TIP]
+> Detalų lanko analizės modulio aprašymą rasite dokumente: **[README_ARC_WIDTH.md](README_ARC_WIDTH.md)**.
 
 ### 3. 🌡️ Arenijaus Analizė (Arenijaus dėsnis)
 *   **Aktyvacijos Energijos ($E_a$) Skaičiavimas**: Automatinis tiesinis parametrų derinimas naudojant $\sigma T = \sigma_0 \exp\left(-\frac{E_a}{k_B T}\right)$ sąryšį.
@@ -54,8 +56,7 @@ graph TD
 *   **Išmanus Redagavimas**: Interaktyvus taškų įtraukimas / pašalinimas iš regresijos, momentinis $R^2$ ir $E_a$ perskaičiavimas bei kelių regresijų overlay grafike.
 
 > [!TIP]
-> Detalų **tiesinimo matematikos, aktyvacijos energijų skaičiavimo, pre-eksponentinio faktoriaus $\sigma_0$ ir kambario temperatūros laidumo ekstrapoliacijos** aprašymą rasite dokumente: **[README_ARRHENIUS.md].
-
+> Detalų Arenijaus modulio aprašymą rasite dokumente: **[README_ARRHENIUS.md](README_ARRHENIUS.md)**.
 
 ### 4. ⚡ DRT Analizė (Relaxation Time Distribution)
 *   **Aukštos raiškos analizė**: Persidengiančių impedanso puslankių atskyrimas ir analizė laiko (dažnių) skalėje.
@@ -63,14 +64,16 @@ graph TD
 *   **Automatinė paieška**: Automatinis viršūnių bei valley rėžių nustatymas ir integravimas.
 
 > [!TIP]
-> Detalų **atsipalaidavimo trukmių pasiskirstymo integralinių lygčių, Simpsono integravimo bei 3D DRT žemėlapio braižymo** aprašymą rasite dokumente: **[README_DRT.md]**.
-
+> Detalų DRT modulio aprašymą rasite dokumente: **[README_DRT.md](README_DRT.md)**.
 
 ### 5. 🤖 SEM Analizė (AI / SAM 2.1 & 3.1)
 *   **Segment Anything Model (SAM)**: Automatinis kietojo elektrolito grūdelių (grains) aptikimas ir kontūrų segmentavimas SEM mikrografijose.
 *   **3D Reljefo Rekonstrukcija**: Pilna 3D paviršiaus topografijos vizualizacija naudojant PyVista (VTK pagrindu). Gylis ($z$) rekonstruojamas pagal pilkumo skalės intensyvumą.
 *   **Skilimo Analizė**: Kiekybinis lūžio topologijos įvertinimas (Intergranuliarinis vs Transgranuliarinis skilimas) skaičiuojant gylio skirtumus grūdelių viduje ir jų sandūrose.
-*   **Šiurkštumo Parametrai**: Kiekvieno grūdelio bei globalaus paviršiaus Ra ir Rq šiurkštumo charakteristikų skaičiavimas mikrometrų tikslumu.
+*   **Šiurkštumo Parametrai**: Kiekvieno grūdelio bei globalaus paviršiaus Ra ir Rq šiurkštumo charakteristikų skaičiavimas.
+
+> [!TIP]
+> Detalų dirbtinio intelekto modelio aprašymą rasite dokumente: **[README_SAM.md](README_SAM.md)**.
 
 ### 6. 📊 SEM Globali Statistika
 *   **Multi-failų Apjungimas**: Apjungia iki 10 Excel failų grūdelių morfologijos matavimus.
@@ -78,22 +81,15 @@ graph TD
 *   **Bimodalė histogama + KDE**: Automatinė unimodalių / bimodalių pasiskirstymo pikų analizė.
 
 > [!TIP]
-> Detalų **Excel duomenų apjungimo, reguliariųjų išraiškų (regex) makro parametrų nuskaitymo ir openpyxl ataskaitų** aprašymą rasite dokumente: **[README_SEM_STATS.md](*.
-
+> Detalų SEM statistikos modulio aprašymą rasite dokumente: **[README_SEM_STATS.md](README_SEM_STATS.md)**.
 
 ### 7. 💎 3D Kristalo Simuliatorius
-*   **LLTO Perovskito Struktūra**: Didelio tikslumo $\text{Li}_{3x}\text{La}_{2/3-x}\text{TiO}_3$ perovskičio gardelės vizualizacija su koordinaciniais oktaedrais.
+*   **LLTO Perovskito Struktūra**: Didelio tikslumo $\text{Li}_{3x}\text{La}_{2/3-x}\text{TiO}_3$ perovskito gardelės vizualizacija su koordinaciniais oktaedrais.
 *   **Ličio Jonų Transporto Simuliacija**: Elektrinio lauko valdomas realaus laiko $\text{Li}^+$ jonų šokinėjimas tarp vakansijų su periodinėmis ribinėmis sąlygomis.
 *   **Grūdelių Ribos ir Langai**: Dviejų skirtingai orientuotų kristalinių sričių sujungimas (dvyniai) bei deguonies langų ($\text{O}_4$ transporto kanalų) vizualizavimas.
 
 > [!TIP]
-> Detalų **fazių virsmų, Ruddlesden-Popper gardelių, Shannon joninių spindulių bei elektrinio lauko dreifo / PBC simuliacijų** aprašymą rasite dokumente: **[README_CRYSTAL.md](README_CRYSTAL.md)**.
-
-
----
-
-> [!TIP]
-> Detalų **SAM 2.1** mašininio mokymosi modelio veikimo, tankaus taškų tinklelio, NMS filtravimo bei 3D reljefo rekonstrukcijos matematinių algoritmų aprašymą rasite atskirame dokumente: **[README_SAM.md](README_SAM.md)**.
+> Detalų kristalo simuliatoriaus modulio aprašymą rasite dokumente: **[README_CRYSTAL.md](README_CRYSTAL.md)**.
 
 ---
 
@@ -141,8 +137,8 @@ python "main CeraMIS.py"
 
 ## 📊 Rezultatų Eksportas
 
-*   **Excel (.xlsx) ataskaitos**: Visi skaičiavimai (individualūs grūdelių duomenys, globali statistika ir fizikiniai moduliai) yra eksportuojami į profesionaliai sumaketuotus Excel failus su spalviniu kodavimu ir automatiniais statistiniais dydžiais.
-*   **Aukštos kokybės grafika (PNG/PDF)**: Bet kuris programoje sugeneruotas grafikas (EIS, Arenijaus, Histograma ar 3D kristalo struktūra) gali būti tiesiogiai išsaugotas moksliniam publikavimui paruoštu formatu.
+*   **Excel (.xlsx) ataskaitos**: Visi skaičiavimai (individualūs grūdelių duomenys, globali statistika ir fizikiniai moduliai) yra eksportuojami į Excel failus.
+*   **Grafikos eksportas (PNG/PDF)**: Grafikus galima išsaugoti PNG arba PDF formatu.
 
 ---
 
