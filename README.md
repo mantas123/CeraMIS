@@ -14,7 +14,7 @@
 
 ---
 
-**CeraMIS** – tai specializuota mokslinė programinė įranga, sukurta **Manto Jono Marcinkevičiaus**, skirta Ličio Lantano Titanato (**LLTO**) kietųjų elektrolitų kompleksinei impedanso spektroskopijos (EIS), relaksacijos trukmės pasiskirstymo (DRT), struktūrinės 3D perovskičių simuliacijos ir SEM mikrostruktūros dirbtinio intelekto analizei.
+**CeraMIS** – tai specializuota mokslinė programinė įranga, sukurta **Manto Jono Marcinkevičiaus**, skirta Ličio Lantano Titanato (**LLTO**) kietųjų elektrolitų kompleksinei impedanso spektroskopijos (EIS), relaksacijos trukmės pasiskirstymo (DRT), struktūrinės 3D perovsito simuliacijos ir SEM mikrostruktūros dirbtinio intelekto analizei.
 
 Ši programa apjungia pažangiausius mašininio mokymosi algoritmus (Meta SAM 3.1) su klasikiniais elektrocheminiais ir kristalografiniais modeliais į vientisą, vartotojui patogią grafinę aplinką.
 
