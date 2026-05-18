@@ -1,3 +1,16 @@
+# Copyright 2026 Mantas Jonas Marcinkevičius
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the limitations under the License.
+
 import sys
 import numpy as np
 import pyvista as pv
@@ -891,7 +904,8 @@ class CrystalViewerWidget(QtWidgets.QWidget):
         self.jump_frame = 0
         p1 = self.data.atoms[self.jump_source_idx]['pos']
         
-        style = ATOM_STYLE['Li']
+        current_style = IONIC_RADII_STYLE if self.realistic_check.isChecked() else ATOM_STYLE
+        style = current_style['Li']
         sphere = pv.Sphere(radius=style['radius'], center=p1, theta_resolution=30, phi_resolution=30)
         self.jump_actor = self.plotter.add_mesh(sphere, color=style['color'], smooth_shading=True, reset_camera=False)
         
@@ -956,7 +970,8 @@ class CrystalViewerWidget(QtWidgets.QWidget):
             if left_vacs:
                 new_li_idx = random.choice(left_vacs)
                 self.data.atoms[new_li_idx]['type'] = 'Li'
-                style = ATOM_STYLE['Li']
+                current_style = IONIC_RADII_STYLE if self.realistic_check.isChecked() else ATOM_STYLE
+                style = current_style['Li']
                 sphere = pv.Sphere(radius=style['radius'], center=self.data.atoms[new_li_idx]['pos'], theta_resolution=30, phi_resolution=30)
                 self.actors[new_li_idx] = self.plotter.add_mesh(sphere, color=style['color'], smooth_shading=True, reset_camera=False)
         else:

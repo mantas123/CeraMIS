@@ -1,8 +1,8 @@
 @echo off
-title LLTO Comprehensive App - Diegimas
+title CeraMIS - Diegimas
 
 echo =========================================================
-echo       LLTO Comprehensive App - Diegimo Vedlys
+echo             CeraMIS - Diegimo Vedlys
 echo =========================================================
 echo.
 
@@ -47,8 +47,8 @@ if %errorlevel% neq 0 (
 echo [PALEIDIMO FAILAS] Kuriama 'run.bat' nuoroda...
 (
 echo @echo off
-echo title LLTO Comprehensive App
-echo echo Paleidziama LLTO Comprehensive App...
+echo title CeraMIS
+echo echo Paleidziama CeraMIS...
 echo start "" ".venv\Scripts\pythonw.exe" "LLTO research app.py"
 ) > run.bat
 

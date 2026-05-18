@@ -1,3 +1,16 @@
+# Copyright 2026 Mantas Jonas Marcinkevičius
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the limitations under the License.
+
 import sys
 import numpy as np
 import pandas as pd
@@ -9,6 +22,7 @@ import matplotlib.colors as mcolors
 from matplotlib.cm import ScalarMappable
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, colorchooser
+from PIL import Image, ImageTk
 import os
 import re
 import traceback
@@ -52,7 +66,7 @@ GRAPH_TYPES = {
 }
 
 # --- KONFIGŪRACIJA ---
-FILE_PATH = r"C:\Users\bigma\OneDrive\BAKALAURAS fiz\4 KURSAS\Bakalauras\rezultatai\LLTO visos sutvarkytos temperaturos pilname spektre.xlsx"
+FILE_PATH = r"C:\Users\bigma\OneDrive\BAKALAURAS fiz\4 KURSAS\Bakalauras\rezultatai\LLTO 145K - 1060K temperatūros 1Hz - 9Ghz spektre.xlsx"
 AUTHOR = "Mantas Jonas Marcinkevičius"
 DEFAULT_PROJECT_PATH = r"C:/Users/bigma/OneDrive/BAKALAURAS fiz/4 KURSAS/Bakalauras/rezultatai/dearEIS LLTO nuo 145k iki 1060K.json"
 EPSILON_0 = 8.85418782e-12 
@@ -249,12 +263,21 @@ def parse_freq_with_units(s):
     except:
         return None
 
-class LLTOComprehensiveApp:
+class CeraMISApp:
     def __init__(self, root):
         self.root = root
-        self.root.title(f"Duomenų valdymas - {AUTHOR}")
+        self.root.title("LLTO keramikos Mikrostruktūros ir Impedanso Analizės Sistema")
         self.root.geometry("1300x1450")
         self.center_window(self.root, 1300, 1450)
+        
+        try:
+            if os.path.exists("logo.ico"):
+                self.root.iconbitmap(default="logo.ico")
+            elif os.path.exists("logo.png"):
+                self.icon_img = tk.PhotoImage(file="logo.png")
+                self.root.iconphoto(True, self.icon_img)
+        except Exception as e:
+            print(f"Nepavyko užkrauti lango ikonos: {e}")
         
         # Set tick direction to 'in' globally
         plt.rcParams['xtick.direction'] = 'in'
@@ -442,7 +465,19 @@ class LLTOComprehensiveApp:
         return w, h
 
     def setup_gui(self):
-        tk.Label(self.tab_main, text="LLTO Spektroskopija", font=('Arial', 12, 'bold')).pack(pady=10)
+        try:
+            if os.path.exists("logo.png"):
+                pil_img = Image.open("logo.png")
+                base_height = 220
+                hpercent = (base_height / float(pil_img.size[1]))
+                wsize = int((float(pil_img.size[0]) * float(hpercent)))
+                pil_img = pil_img.resize((wsize, base_height), Image.Resampling.LANCZOS)
+                self.logo_img = ImageTk.PhotoImage(pil_img)
+                tk.Label(self.tab_main, image=self.logo_img).pack(pady=(15, 0))
+        except Exception as e:
+            print(f"Nepavyko atvaizduoti logotipo: {e}")
+
+        tk.Label(self.tab_main, text="LLTO keramikos Mikrostruktūros ir Impedanso Analizės Sistema", font=('Arial', 14, 'bold')).pack(pady=10)
         tk.Label(self.tab_main, text=f"Autorius: {AUTHOR}", fg="#555").pack()
         
         file_frame = tk.Frame(self.tab_main)
@@ -1942,7 +1977,7 @@ class LLTOComprehensiveApp:
             
             # Sukuriame Toplevel langą
             plot_window = tk.Toplevel(self.root)
-            plot_window.title("LLTO impedanso spektroskopija")
+            plot_window.title("CeraMIS – LLTO keramikos Mikrostruktūros ir Impedanso Analizės Sistema")
             plot_window.attributes('-topmost', True) # Laikinai iškeliam į priekį
             
             # Naudojame adaptyvų lango dydį (maksimalus, bet telpa ekrane)
@@ -3271,169 +3306,15 @@ class LLTOComprehensiveApp:
         return np.max(arc_real) - np.min(arc_real)
 
     def show_arc_width_info(self):
-        selected = sorted([t for t, v in self.vars.items() if v.get()])
-        if not selected:
-            messagebox.showwarning("Dėmesio", "Pasirinkite bent vieną temperatūrą kairiajame sąraše.")
-            return
-        
-        # Toplevel langas
-        sw = tk.Toplevel(self.root)
-        sw.title(f"Lanko analizė (stačiakampis žymėjimas)")
-        w, h = self.center_window(sw, 1600, 1001) # Pradinis +1px layoutui
-
-        dpi = 100
-        fig = Figure(figsize=(w / dpi, h / dpi), dpi=dpi, facecolor='white')
-        ax = fig.add_subplot(111)
-        
-        all_datasets = {}
-        cmap = plt.cm.viridis
-        n_sel = len(selected)
-        
-        k_LA, k_AL = self._get_geometric_factors()
-        for i, temp in enumerate(selected):
-            f, z = self.get_filtered_data(temp)
-            if len(z) < 2: continue
-            
-            # Normalizuojame į SI vienetus [Ω·m] prieš braižant
-            z_n = z * k_AL
-            
-            color = cmap(i / max(n_sel - 1, 1)) if n_sel > 1 else '#1f77b4'
-            ax.plot(z_n.real, -z_n.imag, 'o-', markersize=6, color=color, alpha=0.7, label=f"{temp}K")
-            all_datasets[temp] = (f, z_n, color)
-
-        ax.set_xlabel("Z', Ω·m")
-        ax.set_ylabel("-Z'', Ω·m")
-        ax.set_title(f"Dešiniuoju klavišu apveskite lanką (stačiakampis)\nPažymėta temperatūrų: {len(all_datasets)}")
-        ax.grid(True, linestyle='--', alpha=0.6)
-        
-        # Formatuotė mažoms vertėms (aukšta T)
-        ax.xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
-        ax.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
-        ax.ticklabel_format(style='sci', scilimits=(-3, 4), axis='both')
-        
-        # 'box' yra stabilesnis Naikvisto grafikams su 'equal' aspektu
-        ax.set_aspect('equal', adjustable='box')
-        
-        self.selector_markers = []
-
-        def on_select(eclick, erelease):
-            for m in self.selector_markers:
-                try: m.remove()
-                except: pass
-            self.selector_markers.clear()
-            
-            x1, y1 = eclick.xdata, eclick.ydata
-            x2, y2 = erelease.xdata, erelease.ydata
-            xmin, xmax = min(x1, x2), max(x1, x2)
-            ymin, ymax = min(y1, y2), max(y1, y2)
-            
-            results_text = []
-            k_LA, k_AL = self._get_geometric_factors()
-            
-            for temp, (f_data, z_n, color) in all_datasets.items():
-                mask = (z_n.real >= xmin) & (z_n.real <= xmax) & \
-                       (-z_n.imag >= ymin) & (-z_n.imag <= ymax)
-                
-                if np.any(mask):
-                    sel_f = f_data[mask]
-                    sel_zr = z_n.real[mask]
-                    sel_zi = -z_n.imag[mask]
-                    
-                    m = ax.plot(sel_zr, sel_zi, 'o', color=color, mec='red', mew=1.5, ms=6, alpha=0.8)[0]
-                    self.selector_markers.append(m)
-                    
-                    r_simple = np.max(sel_zr) - np.min(sel_zr)
-                    p_idx = np.argmax(sel_zi)
-                    fp = sel_f[p_idx]
-                    
-                    # Aproksimuojame lanką apskritimu (Least Squares), jei yra bent 3 taškai
-                    if len(sel_zr) >= 3:
-                        A = np.c_[2 * sel_zr, 2 * sel_zi, np.ones_like(sel_zr)]
-                        B = sel_zr**2 + sel_zi**2
-                        C_sol, _, _, _ = np.linalg.lstsq(A, B, rcond=None)
-                        xc, yc = C_sol[0], C_sol[1]
-                        R_circ2 = C_sol[2] + xc**2 + yc**2
-                        
-                        if R_circ2 > yc**2:
-                            # Susikirtimai su y=0 (X ašimi)
-                            dx = np.sqrt(R_circ2 - yc**2)
-                            x_int1, x_int2 = xc - dx, xc + dx
-                            r_fit = x_int2 - x_int1
-                            
-                            # RQ lanko analizė: CPE parametro n skaičiavimas
-                            phi = np.arcsin(min(1.0, abs(yc) / np.sqrt(R_circ2)))
-                            n_cpe = 1.0 - (2.0 * phi / np.pi)
-                            
-                            # Nupiešiame aproksimuotą lanką
-                            x_arc = np.linspace(x_int1, x_int2, 100)
-                            y_arc = yc + np.sqrt(np.clip(R_circ2 - (x_arc - xc)**2, 0, None))
-                            arc_line = ax.plot(x_arc, y_arc, '--', color=color, lw=2)[0]
-                            int_pts = ax.plot([x_int1, x_int2], [0, 0], 'x', color='black', ms=8, mew=2, zorder=5)[0]
-                            self.selector_markers.extend([arc_line, int_pts])
-                            
-                            if fp > 0 and r_fit > 0:
-                                omega_p = 2 * np.pi * fp
-                                q_cpe = 1 / (r_fit * (omega_p ** n_cpe))
-                                c_eq = 1 / (omega_p * r_fit)
-                            else:
-                                q_cpe, c_eq = 0, 0
-                                
-                            res_str = (f"{temp}K: R={to_sci_unicode(r_fit)} Ω·m, n={n_cpe:.3f}, Q={to_sci_unicode(q_cpe)}\n"
-                                       f"   C_eq={to_sci_unicode(c_eq)} F/m, Int:[{to_sci_unicode(x_int1)}, {to_sci_unicode(x_int2)}]")
-                            results_text.append(res_str)
-                        else:
-                            c_simple = 1 / (2 * np.pi * fp * r_simple) if fp > 0 and r_simple > 0 else 0
-                            results_text.append(f"{temp}K: Max-Min R={to_sci_unicode(r_simple)} Ω·m, C={to_sci_unicode(c_simple)} F/m (Aproks. nepavyko)")
-                    else:
-                        c_simple = 1 / (2 * np.pi * fp * r_simple) if fp > 0 and r_simple > 0 else 0
-                        results_text.append(f"{temp}K: Max-Min R={to_sci_unicode(r_simple)} Ω·m, C={to_sci_unicode(c_simple)} F/m")
-            
-            if not results_text:
-                ax.set_title("Pasirinktoje srityje nėra taškų!")
-            else:
-                display_limit = 6
-                display_text = "Rezultatai:\n" + "\n".join(results_text[:display_limit])
-                if len(results_text) > display_limit:
-                    display_text += f"\n... ir dar {len(results_text)-display_limit}"
-                ax.set_title(display_text, fontsize=10, fontweight='bold')
-            
-            fig.canvas.draw()
-
-        self.rs = RectangleSelector(ax, on_select,
-                                     useblit=False,
-                                     button=[1, 3], 
-                                     minspanx=0, minspany=0,
-                                     interactive=True)
-        if len(all_datasets) <= 15:
-            ax.legend(fontsize=8)
-        
-        # Toolbaras ir Canvas
-        tb_frame = tk.Frame(sw)
-        tb_frame.pack(side=tk.BOTTOM, fill=tk.X)
-        
-        canvas = FigureCanvasTkAgg(fig, master=sw)
-        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        toolbar = NavigationToolbar2Tk(canvas, tb_frame)
-        toolbar.update()
-        
-        fig.subplots_adjust(left=0.07, bottom=0.073, right=0.954, top=0.905, wspace=0.197, hspace=0.183)
-        sw.update()
-        canvas.draw()
-        
-        # Vieno pikselio "refresh" triukas
-        def force_refresh():
-            w, h = sw.winfo_width(), sw.winfo_height()
-            if w > 100:
-                sw.geometry(f"{w+1}x{h}")
-                sw.after(50, lambda: sw.geometry(f"{w}x{h}"))
-        sw.after(200, force_refresh)
+        """Deleguoja lanko pločio skaičiavimą į išorinį modulį."""
+        from arc_width_module import show_arc_width
+        show_arc_width(self)
 
     def export_excel(self):
         selected = [t for t, v in self.vars.items() if v.get()]
         if not selected: return
         file_dir = os.path.dirname(self.current_filepath)
-        excel_path = os.path.join(file_dir, f"LLTO Rezultatai {datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx")
+        excel_path = os.path.join(file_dir, f"CeraMIS Rezultatai {datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx")
         try:
             with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
                 summary = []
@@ -3476,7 +3357,7 @@ class LLTOComprehensiveApp:
             z_filtered = z_filtered[sort_idx]
             
             # Sukuriamas failo pavadinimas su temperatūra
-            f_p = os.path.join(os.path.dirname(self.current_filepath), f"LLTO {t}K zview.z")
+            f_p = os.path.join(os.path.dirname(self.current_filepath), f"CeraMIS {t}K zview.z")
             
             try:
                 with open(f_p, 'w', encoding='utf-8') as f:
@@ -3515,6 +3396,13 @@ class LLTOComprehensiveApp:
 if __name__ == "__main__":
 
     import ctypes
+    
+    try:
+        myappid = u'ceramis.llto.app.1.0'
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(ctypes.c_wchar_p(myappid))
+    except Exception:
+        pass
+
     # DPI awareness Windows 4K ekranams
     try:
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
@@ -3532,5 +3420,5 @@ if __name__ == "__main__":
     style = ttk.Style(root)
     style.configure(".", font=default_font)
     
-    app = LLTOComprehensiveApp(root)
+    app = CeraMISApp(root)
     root.mainloop()

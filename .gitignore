@@ -27,3 +27,13 @@ __pycache__/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+
+# Git Helper Scripts
+git_update.bat
+git_setup.bat
+
+# Other unnecessary files
+*.log
+*.tmp
+.vscode/
