@@ -35,21 +35,21 @@ graph TD
 
 Didelė dalis elektrocheminių sistemų (ypač kietųjų elektrolitų) pasižymi persidengiančiais puslankiais Naikvisto grafike, todėl standartinis ekvivalentinių grandynų parinkimas tampa nepatikimas. DRT metodas išsprendžia šią problemą, konvertuodamas eksperimentinį impedansą $Z(\omega)$ į tolydų relaksacijos trukmių pasiskirstymą $\gamma(\ln \tau)$ per integralinę lygtį:
 
-$$Z(\omega) = R_{\infty} + R_p \int_{-\infty}^{\infty} \frac{\gamma(\ln \tau)}{1 + j \omega \tau} \, d(\ln \tau)$$
+$$Z(\omega) = R_ {\infty} + R_ {p} \int_{-\infty}^{\infty} \frac{\gamma(\ln \tau)}{1 + j \omega \tau} \, d(\ln \tau)$$
 
 ### 1. Poliarizacijos varžos ($R$) skaitmeninė integracija
 Kiekvienas DRT spektro pikas atitinka atskirą elektrocheminį procesą (pvz., ličio jonų dreifą per grūdelius ar jų ribas). Šio proceso poliarizacijos varža ($R$) yra lygi piko plotui, integruojant logaritminėje trukmių skalėje:
 
-$$R = \int_{\tau_{\min}}^{\tau_{\max}} \gamma(\ln \tau) \, d(\ln \tau)$$
+$$R = \int_{\tau_ {\min}}^{\tau_ {\max}} \gamma(\ln \tau) \, d(\ln \tau)$$
 
 Programa šią integraciją atlieka skaitmeniškai, taikydama **Simpsono (Simpson) taisyklę** (`scipy.integrate.simpson`) per parinktą taškų intervalą:
 
 $$R = \text{simpson}(y=\gamma, x=\ln \tau)$$
 
 ### 2. Efektyviosios talpos ($C$) apskaičiavimas
-Suradus piko maksimumo relaksacijos trukmę ($\tau_p$), kurioje pasiekiama didžiausia $\gamma$ reikšmė, bei piko integralinę varžą ($R$), efektyvioji proceso talpa ($C$) apskaičiuojama pagal fundamentaliąją laiko konstantos lygtį:
+Suradus piko maksimumo relaksacijos trukmę ($\tau_ {p}$), kurioje pasiekiama didžiausia $\gamma$ reikšmė, bei piko integralinę varžą ($R$), efektyvioji proceso talpa ($C$) apskaičiuojama pagal fundamentaliąją laiko konstantos lygtį:
 
-$$\tau_p = R \cdot C \implies C = \frac{\tau_p}{R}$$
+$$\tau_ {p} = R \cdot C \implies C = \frac{\tau_ {p}}{R}$$
 
 ---
 

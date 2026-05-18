@@ -70,9 +70,9 @@ Spustelėjus mygtuką **„📊 Bimodalė histograma + KDE“**, sukuriamas graf
 ##### 🔹 Pagrindiniai metodo aspektai:
 *   **Tolydi kreivė**: Pakeičia kampuotas, diskrečias histogramas švelnia, tolydžia linija.
 *   **Tikimybių tankis**: Kreivės plotas po ja yra lygus vienetui ($\int_{-\infty}^{\infty} \hat{f}(x) dx = 1$), rodantis santykinį duomenų tankumą.
-*   **Gausio branduolys**: Kiekvienam imties taškui $x_i$ pritaikomas normalusis (Gausio) pasiskirstymas kaip svorio funkcija, centruota tame taške.
+*   **Gausio branduolys**: Kiekvienam imties taškui $x_ {i}$ pritaikomas normalusis (Gausio) pasiskirstymas kaip svorio funkcija, centruota tame taške.
 *   **Suma**: Visi individualūs branduoliai sudedami į vieną bendrą kreivę ir padalinami iš taškų skaičiaus:
-    $$\hat{f}(x) = \frac{1}{n h \sqrt{2\pi}} \sum_{i=1}^{n} e^{-\frac{(x - x_i)^2}{2h^2}}$$
+    $$\hat{f}(x) = \frac{1}{n h \sqrt{2\pi}} \sum_ {i=1}^{n} e^{-\frac{(x - x_ {i})^2}{2h^2}}$$
 
 ##### 🔹 Juostos pločio (Bandwidth) įtaka:
 Juostos plotis ($h$) yra pats svarbiausias KDE parametras, valdantis kreivės glotnumą ir lemiantis balanso tarp sistemingos paklaidos (bias) ir dispersijos (variance) kontrolę:

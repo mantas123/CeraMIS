@@ -50,9 +50,9 @@ graph TD
 > Detalų lanko analizės modulio aprašymą rasite dokumente: **[README_ARC_WIDTH.md](README_ARC_WIDTH.md)**.
 
 ### 3. 🌡️ Arenijaus Analizė (Arenijaus dėsnis)
-*   **Aktyvacijos Energijos ($E_a$) Skaičiavimas**: Automatinis tiesinis parametrų derinimas naudojant $\sigma T = \sigma_0 \exp\left(-\frac{E_a}{k_B T}\right)$ sąryšį.
+*   **Aktyvacijos Energijos ($E_ {a}$) Skaičiavimas**: Automatinis tiesinis parametrų derinimas naudojant $\sigma T = \sigma_ {0} \exp\left(-\frac{E_ {a}}{k_ {B} T}\right)$ sąryšį.
 *   **Komponentų Išskyrimas**: Atskiras tūrinio laidumo (Bulk), grūdelių ribų (Grain Boundary) bei pilno laidumo (Total) aktyvacijos energijų (eV) skaičiavimas.
-*   **Išmanus Redagavimas**: Interaktyvus taškų įtraukimas / pašalinimas iš regresijos, momentinis $R^2$ ir $E_a$ perskaičiavimas bei kelių regresijų overlay grafike.
+*   **Išmanus Redagavimas**: Interaktyvus taškų įtraukimas / pašalinimas iš regresijos, momentinis $R^2$ ir $E_ {a}$ perskaičiavimas bei kelių regresijų overlay grafike.
 
 > [!TIP]
 > Detalų Arenijaus modulio aprašymą rasite dokumente: **[README_ARRHENIUS.md](README_ARRHENIUS.md)**.

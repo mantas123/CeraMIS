@@ -81,33 +81,33 @@ graph TD
 #### 1. Gylio ($z$) matricos generavimas:
 Kadangi SEM antrinių elektronų intensyvumas (pikselio šviesumas nuo 0 iki 255) yra tiesiogiai susijęs su kietojo elektrolito lūžio paviršiaus polinkio kampu, pilkumo skalės vertės yra tiesiogiai konvertuojamos į santykinį gylio ($z$) žemėlapį mikrometrais:
 
-$$z_{\text{um}} = I(x, y) \times \frac{w}{255} \times 0.1 \times \text{scale}$$
+$$z_ {\text{um}} = I(x, y) \times \frac{w}{255} \times 0.1 \times \text{scale}$$
 
 *   $I(x, y)$ – pilkumo kanalo intensyvumas ($I(x, y) \in [0, 255]$). Šviesesnės sritys (kurios SEM nuotraukoje atspindi iškilusias briaunas) tampa viršūnėmis, o tamsesnės (šešėliai, poros, grūdelių ribos) – slėniais.
 *   $w$ – vaizdo plotis pikseliais.
 *   $\text{scale}$ – pikselio dydžio santykis su realiu masteliu ($px \to \mu\text{m}$).
 
-#### 2. 3D Paviršiaus Plotas ($A_{3D}$):
+#### 2. 3D Paviršiaus Plotas ($A_ {3D}$):
 Kiekvieno grūdelio realus trimatis plotas skaičiuojamas skaitmeniškai integruojant erdvinį gradientą per visą grūdelio kaukės sritį:
 
-$$A_{3D} = \iint_{\text{Mask}} \sqrt{1 + \left(\frac{\partial z}{\partial x}\right)^2 + \left(\frac{\partial z}{\partial y}\right)^2} \,dx\,dy$$
+$$A_ {3D} = \iint_ {\text{Mask}} \sqrt{1 + \left(\frac{\partial z}{\partial x}\right)^2 + \left(\frac{\partial z}{\partial y}\right)^2} \,dx\,dy$$
 
 *(išvestinės $\frac{\partial z}{\partial x}$ ir $\frac{\partial z}{\partial y}$ apskaičiuojamos naudojant antros eilės centrinių skirtumų metodą `np.gradient`).*
 
-#### 3. Šiurkštumo ($R_a$, $R_q$) skaičiavimas:
+#### 3. Šiurkštumo ($R_ {a}$, $R_ {q}$) skaičiavimas:
 Paviršiaus šiurkštumas skaičiuojamas visam pavyzdžiui (globalus) arba kiekvienam AI segmentuotam grūdeliui atsektose ribose:
-*   **Vidutinis aritmetinis šiurkštumas ($R_a$)**:
+*   **Vidutinis aritmetinis šiurkštumas ($R_ {a}$)**:
     Skaičiuojamas kaip vidutinis absoliutus gylio verčių nuokrypis nuo grūdelio paviršiaus vidurkio:
-    $$R_a = \frac{1}{N} \sum_{i=1}^{N} |z_i - \bar{z}|$$
-*   **Vidutinis kvadratinis šiurkštumas ($R_q$)**:
-    $$R_q = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (z_i - \bar{z})^2}$$
+    $$R_ {a} = \frac{1}{N} \sum_ {i=1}^{N} |z_ {i} - \bar{z}|$$
+*   **Vidutinis kvadratinis šiurkštumas ($R_ {q}$)**:
+    $$R_ {q} = \sqrt{\frac{1}{N} \sum_ {i=1}^{N} (z_ {i} - \bar{z})^2}$$
     kur $\bar{z}$ – vidutinis pavyzdžio (arba konkretaus grūdelio) aukštis, o $N$ – taškų skaičius.
 
 #### 4. Skilimo Mechanizmo Klasifikacija:
 Programa automatiškai identifikuoja, ar kietasis elektrolitas lūžo per grūdelių ribas (**Intergranuliarinis skilimas**), ar tiesiai per pačius grūdelius (**Transgranuliarinis skilimas**):
 *   Taikoma kaukės erozija, leidžianti išskirti grūdelio centrą (Interior) ir pakraštį (Boundary).
 *   Apskaičiuojamas gylio skirtumas tarp šių dviejų zonų:
-    $$\Delta Z = \bar{Z}_{\text{interior}} - \bar{Z}_{\text{boundary}}$$
+    $$\Delta Z = \bar{Z}_ {\text{interior}} - \bar{Z}_ {\text{boundary}}$$
 *   Jei $\Delta Z > 0.5\,\mu\text{m}$, skilimas klasifikuojamas kaip *Stipriai Intergranuliarinis*, jei $\Delta Z < -0.5\,\mu\text{m}$ – *Transgranuliarinis*, o tarpinėse reikšmėse – *Mišrus*.
 
 #### 5. 3D tinklelio braižymas PyVista:
