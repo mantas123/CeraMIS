@@ -4,6 +4,7 @@
 ### Ceramic Microstructure & Impedance Suite
 </div>
 ### Keramikos Mikrostruktūros ir Impedanso Sistema
+</div>
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![UI Framework](https://img.shields.io/badge/UI-Tkinter%20%2F%20Matplotlib-orange.svg)](https://docs.python.org/3/library/tkinter.html)
