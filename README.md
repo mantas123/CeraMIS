@@ -1,7 +1,7 @@
 <div align="center">
 <img src="logo.png" width="300" alt="CeraMIS Logo">
     
-### Ceramic Microstructure & Impedance Suite
+### Ceramic Microstructure & Impedance System
 #### **Keramikos Mikrostruktūros ir Impedanso Sistema**
 </div>
 
