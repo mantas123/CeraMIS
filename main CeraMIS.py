@@ -266,9 +266,9 @@ def parse_freq_with_units(s):
 class CeraMISApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("LLTO keramikos Mikrostruktūros ir Impedanso Analizės Sistema")
-        self.root.geometry("1300x1450")
-        self.center_window(self.root, 1300, 1450)
+        self.root.title("CeraMIS - Keramikos Mikrostruktūros ir Impedanso Sistema")
+        self.root.geometry("1300x1550")
+        self.center_window(self.root, 1300, 1550)
         
         try:
             if os.path.exists("logo.ico"):

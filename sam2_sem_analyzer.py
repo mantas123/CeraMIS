@@ -839,7 +839,7 @@ class InteractiveSAMCorrector:
         self.selected_indices = []
         
         self.fig, self.ax = plt.subplots(figsize=(14, 12))
-        self.fig.canvas.manager.set_window_title("SAM 3.1 Rankinis Koregavimas")
+        self.fig.canvas.manager.set_window_title("SAM 2.1 Rankinis Koregavimas")
         
         self.cid_click = self.fig.canvas.mpl_connect('button_press_event', self.on_click)
         self.cid_key = self.fig.canvas.mpl_connect('key_press_event', self.on_key)
