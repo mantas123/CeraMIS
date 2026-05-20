@@ -43,26 +43,8 @@ graph TD
 *   **Geometrinis Normalizavimas**: Automatinis matavimų perskaičiavimas į specifinius vienetus įvertinant bandinio geometriją – storį ($L$) ir plotą ($A$).
 *   **Palaikomi Formatai**: Tiesioginis eksperimentinių `.txt`, ZView `.z` bei kelių lapų Excel `.xlsx` failų importas.
 
-#### 🖊️ Grafiko Redagavimo ir Eksporto Dialogo Galimybės
-
-Dukart spustelėjus **dešiniuoju pelės mygtuku** ant bet kurio grafiko (2D ar 3D), atsidaro išsamus redagavimo dialogo langas su šiomis funkcijomis:
-
-| Funkcija | Aprašymas |
-|---|---|
-| Grafiko pavadinimas, ašių pavadinimai | Laisvo teksto redagavimas |
-| X/Y ribos | Tikslus ašių diapazono nustatymas |
-| Skalė | Logaritminė / tiesinė kiekvienai ašiai |
-| Invertuoti ašis | X, Y (ir Z 3D atveju) |
-| Legenda | Įjungti / išjungti |
-| **Terminės spalvų paletės** | Keičia kreivių spalvas pagal temperatūrą: Originalios / Ironbow / Rainbow (Turbo) / Arctic / Jūsų paletė (2 spalvos) |
-| **Colorbar** | Temperatūros spalvų skalė šalia grafiko |
-| **Taikyti visiems polankiams** | Paletė pritaikoma visai 3x3 matricai iš karto |
-| Eksporto dydis | Plotis ir aukštis coliais (dpi=300) |
-| **Eksportuoti** | Išsaugoti PNG / PDF / SVG / EPS |
-| **Kopijuoti** | Grafikas nukopijuojamas į Windows iškarpinę |
-
 > [!TIP]
-> Detalų EIS modulių aprašymą rasite dokumente: **[README_EIS_PLOTS.md](README_EIS_PLOTS.md)**.
+> Detalų EIS modulių (taip pat ir grafiko redagavimo bei eksporto funkcijų) aprašymą rasite dokumente: **[README_EIS_PLOTS.md](README_EIS_PLOTS.md)**.
 
 ---
 

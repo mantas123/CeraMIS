@@ -51,6 +51,24 @@ Taikant šį geometrinį normalizavimą, visi grafikai yra atvaizduojami fizikin
 9.  **Cole-Cole grafikas**:
     Vaizduoja dielektrinių nuostolių priklausomybę nuo realiosios dielektrinės skvarbos: $\varepsilon''$ priklausomybė nuo $\varepsilon'$.
 
+### 🖊️ Grafiko Redagavimo ir Eksporto Dialogo Galimybės
+
+Dukart spustelėjus **dešiniuoju pelės mygtuku** ant bet kurio grafiko (2D ar 3D), atsidaro išsamus redagavimo dialogo langas su šiomis funkcijomis:
+
+| Funkcija | Aprašymas |
+|---|---|
+| Grafiko pavadinimas, ašių pavadinimai | Laisvo teksto redagavimas |
+| X/Y ribos | Tikslus ašių diapazono nustatymas |
+| Skalė | Logaritminė / tiesinė kiekvienai ašiai |
+| Invertuoti ašis | X, Y (ir Z 3D atveju) |
+| Legenda | Įjungti / išjungti |
+| **Terminės spalvų paletės** | Keičia kreivių spalvas pagal temperatūrą: Originalios / Ironbow / Rainbow (Turbo) / Arctic / Jūsų paletė (2 spalvos) |
+| **Colorbar** | Temperatūros spalvų skalė šalia grafiko |
+| **Taikyti visiems polankiams** | Paletė pritaikoma visai 3x3 matricai iš karto |
+| Eksporto dydis | Plotis ir aukštis coliais (dpi=300) |
+| **Eksportuoti** | Išsaugoti PNG / PDF / SVG / EPS |
+| **Kopijuoti** | Grafikas nukopijuojamas į Windows iškarpinę |
+
 ---
 
 ## 🗺️ 2. Trimačių (3D) Grafikų kūrimo algoritmai

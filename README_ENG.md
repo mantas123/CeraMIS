@@ -44,26 +44,8 @@ graph TD
 *   **Geometric Normalization**: Automatic conversion of raw values to normalized ones based on specimen thickness ($L$) and area ($A$).
 *   **Supported Formats**: Direct import of experimental `.txt` files, ZView `.z` files, and multi-sheet Excel `.xlsx` files.
 
-#### 🖊️ Plot Editing and Export Dialog Features
-
-Double-clicking the **right mouse button** on any plot (2D or 3D) opens a comprehensive editing dialog with the following features:
-
-| Feature | Description |
-|---|---|
-| Plot & Axes Titles | Free-text editing for labels |
-| X/Y Limits | Precise axis range constraints |
-| Scale | Logarithmic / Linear selection per axis |
-| Invert Axes | X, Y (and Z for 3D) |
-| Legend | Toggle on / off |
-| **Thermal Color Palettes** | Recolor curves by temperature: Original / Ironbow / Rainbow (Turbo) / Arctic / Custom (2 colors) |
-| **Colorbar** | Temperature color scale beside the plot |
-| **Apply to All Subplots** | Applies the palette to the entire 3x3 matrix instantly |
-| Export Size | Width and height in inches (dpi=300) |
-| **Export** | Save as PNG / PDF / SVG / EPS |
-| **Copy** | Copies the plot directly to the Windows clipboard |
-
 > [!TIP]
-> A detailed guide for the EIS module is available in: **[README_EIS_PLOTS.md](README_EIS_PLOTS.md)**.
+> A detailed guide for the EIS module (including plot editing and export features) is available in: **[README_EIS_PLOTS.md](README_EIS_PLOTS.md)**.
 
 ### 2. 🌀 Arc Width Analysis
 *   Interactive manual detection of impedance semi-arcs and their characteristic frequencies in the Cole-Cole space.
