@@ -127,6 +127,7 @@ class CeraMISApp:
     def __init__(self, root):
         self.root = root
         self.gui_scale = float(get_config_val('gui_scale', '1.0'))
+        self.is_dark = get_config_bool('dark_mode', False)
         self.root.title(_('app_title', "CeraMIS - Ceramic Microstructure and Impedance System"))
         
         start_w = int(1300 * self.gui_scale)
@@ -379,6 +380,17 @@ class CeraMISApp:
             messagebox.showinfo(_('msg_info', "Information"), _('restart_required_scale', "GUI Scale changed. Please restart CeraMIS to apply changes."))
             
         scale_cb.bind("<<ComboboxSelected>>", on_scale_change)
+
+        tk.Label(appearance_lf, text=_('dark_mode_label', "Dark Mode (Needs Restart):"), font=('Arial', 10)).grid(row=1, column=0, sticky="w", pady=5)
+        self.dark_mode_var = tk.BooleanVar(value=get_config_bool('dark_mode', False))
+        dark_cb = ttk.Checkbutton(appearance_lf, variable=self.dark_mode_var)
+        dark_cb.grid(row=1, column=1, padx=20, pady=5, sticky="w")
+
+        def on_dark_change():
+            set_config_val('dark_mode', self.dark_mode_var.get())
+            messagebox.showinfo(_('msg_info', "Information"), _('restart_required_theme', "Theme changed. Please restart CeraMIS to apply changes."))
+
+        dark_cb.config(command=on_dark_change)
         
         lang_lf = ttk.LabelFrame(settings_frame, text=_('language_settings', "Language / Kalba"), padding=15)
         lang_lf.pack(fill="x", pady=10)
@@ -447,12 +459,16 @@ class CeraMISApp:
             print(f"Nepavyko atvaizduoti logotipo: {e}")
 
         tk.Label(self.tab_main, text=_('app_title', "CeraMIS - Ceramic Microstructure and Impedance System"), font=('Arial', 14, 'bold')).pack(pady=10)
-        tk.Label(self.tab_main, text=f"{_('author', 'Author')}: {AUTHOR}", fg="#555").pack()
+        tk.Label(self.tab_main, text=f"{_('author', 'Author')}: {AUTHOR}", fg="#888888" if self.is_dark else "#555").pack()
         
         file_frame = tk.Frame(self.tab_main)
         file_frame.pack(pady=5, fill="x", padx=20)
-        tk.Button(file_frame, text=_('select_file_btn', "📂 Select File..."), command=self.open_file_dialog, bg="#E0E0E0").pack(side="left")
-        tk.Label(file_frame, textvariable=self.current_file_var, fg="blue", wraplength=250, justify="left").pack(side="left", padx=10)
+        tk.Button(file_frame, text=_('select_file_btn', "📂 Select File..."), command=self.open_file_dialog, 
+                  bg="#333333" if self.is_dark else "#E0E0E0", 
+                  fg="#e0e0e0" if self.is_dark else "black",
+                  activebackground="#444444" if self.is_dark else "#CCCCCC",
+                  activeforeground="#e0e0e0" if self.is_dark else "black").pack(side="left")
+        tk.Label(file_frame, textvariable=self.current_file_var, fg="#64B5F6" if self.is_dark else "blue", wraplength=250, justify="left").pack(side="left", padx=10)
         
         # --- KONFIGŪRACIJOS KONTEINERIS (Grafikai + Geometrija) ---
         config_container = tk.Frame(self.tab_main)
@@ -488,7 +504,13 @@ class CeraMISApp:
         ttk.Entry(geo_frame, textvariable=self.area_var, width=10).grid(row=1, column=1, padx=5, pady=5)
         
         tk.Checkbutton(geo_frame, text=_('normalized_checkbox', "Data already normalized (Ω·m)"), 
-                       variable=self.is_normalized_var, bg='#f0f0f0', font=('Arial', 9)).grid(row=2, column=0, columnspan=2, sticky="w", pady=(10,0))
+                       variable=self.is_normalized_var, 
+                       bg='#252526' if self.is_dark else '#f0f0f0', 
+                       fg='#e0e0e0' if self.is_dark else '#000000',
+                       selectcolor='#1e1e1e' if self.is_dark else '#ffffff',
+                       activebackground='#252526' if self.is_dark else '#f0f0f0',
+                       activeforeground='#e0e0e0' if self.is_dark else '#000000',
+                       font=('Arial', 9)).grid(row=2, column=0, columnspan=2, sticky="w", pady=(10,0))
 
         # --- TEMPERATŪRŲ ŽYMĖJIMAS ---
         selection_frame = tk.Frame(self.tab_main)
@@ -575,7 +597,7 @@ class CeraMISApp:
         fit_top.pack(fill="both", expand=True)
         tk.Label(fit_top, text=_('circuit_modeling_title', "Circuit Modeling"), font=('Arial', 13, 'bold')).pack(pady=12)
         tk.Label(fit_top, text=_('circuit_modeling_desc', "Select circuit type and click 'Fit Model'."),
-                 fg="#555").pack()
+                 fg="#888888" if self.is_dark else "#555").pack()
         fit_frame = tk.LabelFrame(fit_top, text=_('circuit_modeling_title', "Circuit Modeling"), padx=15, pady=15)
         fit_frame.pack(pady=20, padx=40, fill="x")
         self.circuit_var = tk.StringVar(value="R-RQ-RQ-Q")
@@ -592,7 +614,7 @@ class CeraMISApp:
         arc_top.pack(fill="both", expand=True)
         tk.Label(arc_top, text=_('arc_width_title', "Nyquist Arc Width & Resistance Calculation"), font=('Arial', 13, 'bold')).pack(pady=12)
         tk.Label(arc_top, text=_('arc_width_desc', "Calculates the Nyquist plot arc width and real-axis resistance."),
-                 fg="#555").pack()
+                 fg="#888888" if self.is_dark else "#555").pack()
         tk.Button(arc_top, text=_('calc_arc_btn', "📏 Calculate Arc Width (R)"), command=self.show_arc_width_info,
                   bg="#FF8F00", fg="white", font=('Arial', 11, 'bold'), width=35, relief="raised", bd=3).pack(pady=30)
 
@@ -603,7 +625,7 @@ class CeraMISApp:
                  font=('Arial', 13, 'bold')).pack(pady=12)
         tk.Label(sem_top,
                  text=_('sem_ai_desc', "Uses Segment Anything Model (SAM) for automatic grain segmentation\nin SEM micrographs and extracts 2D+3D morphological statistics\n(diameter, circularity, roughness Ra, fracture topology index)."),
-                 fg="#444", justify="center").pack(pady=5)
+                 fg="#aaaaaa" if self.is_dark else "#444", justify="center").pack(pady=5)
         tk.Button(sem_top, text=_('run_sem_btn', "🔬 Run SEM AI Analyzer"), command=self.open_sam_analyzer,
                   bg="#4527A0", fg="white", font=('Arial', 11, 'bold'), width=35, relief="raised", bd=3).pack(pady=30)
                   
@@ -614,7 +636,7 @@ class CeraMISApp:
                  font=('Arial', 13, 'bold')).pack(pady=12)
         tk.Label(cryst_top,
                  text=_('crystal_desc', "Interactive 3D visualization of the LLTO perovskite structure.\nSupports real-time Li+ ion hop animation, stoichiometry config,\nand Cubic/Tetragonal phase switching."),
-                 fg="#444", justify="center").pack(pady=5)
+                 fg="#aaaaaa" if self.is_dark else "#444", justify="center").pack(pady=5)
         tk.Button(cryst_top, text=_('run_crystal_btn', "💎 Launch 3D Crystal Viewer"), command=self.open_crystal_viewer,
                   bg="#6A1B9A", fg="white", font=('Arial', 11, 'bold'), width=35, relief="raised", bd=3).pack(pady=30)
         
@@ -837,11 +859,12 @@ class CeraMISApp:
             # Panoraminis vaizdas - prideriname figsize pagal gautą lango dydį (coliais)
             dpi = 100
             fig_w, fig_h = w / dpi, h / dpi
-            self.fig = Figure(figsize=(fig_w, fig_h), dpi=dpi, facecolor='white')
+            self.fig = Figure(figsize=(fig_w, fig_h), dpi=dpi, facecolor='#252526' if self.is_dark else 'white')
             self.axes = self.fig.subplots(3, 3)
             self.fig.subplots_adjust(top=0.96, bottom=0.14, left=0.04, right=0.96, hspace=0.3, wspace=0.3)
             self.table_text = self.fig.text(0.5, 0.03, "Kairiuoju pelės mygtuku spauskite ant taško, kad jį pažymėtumėte analizei | Du kartus spauskite dešiniuoju pelės mygtuku, kad redaguotumėte grafiką", 
-                                           ha="center", fontsize=11, fontweight='bold', bbox=dict(facecolor='white', alpha=0.9))
+                                           ha="center", fontsize=11, fontweight='bold', color='#e0e0e0' if self.is_dark else 'black',
+                                           bbox=dict(facecolor='#2d2d2d' if self.is_dark else 'white', edgecolor='#3e3e3e' if self.is_dark else '#CCCCCC', alpha=0.9))
             self.data_plots, self.highlight_markers = [], []
             
             all_data = {}
@@ -957,7 +980,7 @@ class CeraMISApp:
                         if not hasattr(ax, '_ax_th'):
                             ax._ax_th = ax.twinx()
                             ax._ax_th._ax_primary = ax
-                            ax._ax_th.set_ylabel("-Θ, °", color='#555555')
+                            ax._ax_th.set_ylabel("-Θ, °", color='#a0a0a0' if self.is_dark else '#555555')
                             ax._ax_th.invert_yaxis() # Invertuojame fazės ašį (kad -90 būtų viršuje)
                         ax._ax_th.semilogx(d['f'], d['th'], 's-', ms=ms*0.8, lw=lw*0.8, color=color, alpha=0.8, label=f"{temp:g} K (-Θ)")
                     elif g_type == "cole_cole": ax.plot(d['ep'], d['edp'], 'o-', ms=ms, lw=lw, label=lbl, color=color, picker=5)
@@ -1000,6 +1023,82 @@ class CeraMISApp:
                     ax.ticklabel_format(style='sci', scilimits=(-3, 6), axis='y')
                 
                 ax.grid(True, which='both', alpha=0.2)
+
+            # Pridedame pelės užvedimo koordinačių formatavimą, kad Naikvisto ir kituose grafikuose rodytų dažnį
+            def make_custom_formatter(ax, g_type):
+                def custom_formatter(x, y):
+                    try:
+                        xs = ax.format_xdata(x)
+                        ys = ax.format_ydata(y)
+                    except Exception:
+                        xs = f"{x:.4g}"
+                        ys = f"{y:.4g}"
+                    
+                    base_txt = f"x={xs}, y={ys}"
+                    
+                    if not hasattr(self, 'data_plots') or not self.data_plots:
+                        return base_txt
+                        
+                    min_dist = float('inf')
+                    closest_f = None
+                    closest_temp = None
+                    
+                    try:
+                        cursor_pixel = ax.transData.transform((x, y))
+                    except Exception:
+                        return base_txt
+                        
+                    for line in ax.get_lines():
+                        gid = line.get_gid()
+                        if gid is None:
+                            continue
+                        try:
+                            temp_val = float(gid)
+                        except ValueError:
+                            continue
+                            
+                        x_data = line.get_xdata()
+                        y_data = line.get_ydata()
+                        if x_data is None or y_data is None or len(x_data) == 0:
+                            continue
+                            
+                        mask = np.isfinite(x_data) & np.isfinite(y_data)
+                        if not np.any(mask):
+                            continue
+                            
+                        indices = np.where(mask)[0]
+                        pts_data = np.column_stack((x_data[mask], y_data[mask]))
+                        try:
+                            pts_pixel = ax.transData.transform(pts_data)
+                        except Exception:
+                            continue
+                            
+                        # Atstumas ekrano pikseliais (Euclidean squared distance)
+                        dists = np.sum((pts_pixel - cursor_pixel) ** 2, axis=1)
+                        if len(dists) == 0:
+                            continue
+                            
+                        idx_filtered = np.argmin(dists)
+                        dist = dists[idx_filtered]
+                        
+                        if dist < min_dist:
+                            min_dist = dist
+                            closest_idx = indices[idx_filtered]
+                            d = next((item for item in self.data_plots if abs(float(item['temp']) - temp_val) < 0.01), None)
+                            if d is not None and closest_idx < len(d['f']):
+                                closest_f = d['f'][closest_idx]
+                                closest_temp = temp_val
+                                
+                    # 50 pikselių atstumo riba (50^2 = 2500)
+                    if closest_f is not None and min_dist < 2500:
+                        f_str = to_sci_unicode(closest_f)
+                        return f"{base_txt} | f={f_str}Hz ({closest_temp:g} K)"
+                    return base_txt
+                return custom_formatter
+
+            for idx, g_type in zip(range(9), selected_graphs):
+                ax = ax_f[idx]
+                ax.format_coord = make_custom_formatter(ax, g_type)
 
             # Viena bendra legenda matricai dešinėje pusėje
             legend_drawn = False
@@ -1112,7 +1211,15 @@ class CeraMISApp:
         self.fig.canvas.draw()
 
     def on_plot_click(self, event):
-        if event.inaxes is None:
+        target_ax = event.inaxes
+        
+        # 3D ašims event.inaxes dažnai None - imame pirmą ašį iš figūros
+        if target_ax is None and event.canvas is not None:
+            fig = event.canvas.figure
+            if fig.axes:
+                target_ax = fig.axes[0]
+        
+        if target_ax is None:
             return
             
         # Atidaro redagavimo meniu paspaudus DVIGUBĄ dešinį pelės mygtuką (button 3)
@@ -1126,16 +1233,32 @@ class CeraMISApp:
             
             if self.right_click_count == 2:
                 self.right_click_count = 0
-                self.open_edit_graph_dialog(event.inaxes)
+                self.open_edit_graph_dialog(target_ax)
 
     def apply_thermal_palette(self, ax, palette_name, show_colorbar=True, custom_colors=None):
         """Pritaiko terminę spalvų paletę grafikui pagal temperatūrą (gid)."""
         ax._pyeis_palette = palette_name
         ax._pyeis_custom_colors = custom_colors
         lines_data = []
-        all_lines = list(ax.get_lines())
+        
+        # Surenkame visas linijas - bandome kelias metodikas
+        all_lines = []
+        try:
+            all_lines.extend(list(ax.get_lines()))
+        except Exception:
+            pass
+        try:
+            # Papildomai iš ax.lines (veikia ir 3D atveju)
+            for ln in ax.lines:
+                if ln not in all_lines:
+                    all_lines.append(ln)
+        except Exception:
+            pass
         if hasattr(ax, '_ax_th'):
-            all_lines.extend(ax._ax_th.get_lines())
+            try:
+                all_lines.extend(ax._ax_th.get_lines())
+            except Exception:
+                pass
             
         for line in all_lines:
             gid = line.get_gid()
@@ -1148,24 +1271,40 @@ class CeraMISApp:
                 except (ValueError, TypeError):
                     continue
         
-        if not lines_data:
+        # Surenkame paviršius (plot_surface) jei yra
+        surface_colls = []
+        try:
+            from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+            for coll in ax.collections:
+                if isinstance(coll, Poly3DCollection):
+                    surface_colls.append(coll)
+        except Exception:
+            pass
+
+        if not lines_data and not surface_colls:
             return
             
         if palette_name == "original":
             for line, t in lines_data:
                 if hasattr(line, '_original_color'):
                     line.set_color(line._original_color)
+            for coll in surface_colls:
+                if hasattr(coll, '_original_cmap'):
+                    coll.set_cmap(coll._original_cmap)
+                    coll.changed()
             if hasattr(ax, '_pyeis_colorbar_axes'):
                 try:
                     ax._pyeis_colorbar_axes.remove()
                     delattr(ax, '_pyeis_colorbar_axes')
                 except: pass
+            if hasattr(ax, '_pyeis_colorbar_obj'):
+                try:
+                    ax._pyeis_colorbar_obj.remove()
+                    delattr(ax, '_pyeis_colorbar_obj')
+                except: pass
             return
 
-        temps = [d[1] for d in lines_data]
-        t_min, t_max = min(temps), max(temps)
-        norm = mcolors.Normalize(vmin=t_min, vmax=t_max)
-        
+        # Nustatome cmap pagal pasirinkimą
         if palette_name == 'ironbow':
             cmap = ironbow_cmap
         elif palette_name == 'arctic':
@@ -1174,27 +1313,54 @@ class CeraMISApp:
             cmap = mcolors.LinearSegmentedColormap.from_list('custom_thermal', [custom_colors[0], custom_colors[1]])
         else: # rainbow
             cmap = plt.get_cmap('turbo')
+
+        # Keičiame linijų spalvas
+        norm = None
+        if lines_data:
+            temps = [d[1] for d in lines_data]
+            t_min, t_max = min(temps), max(temps)
+            norm = mcolors.Normalize(vmin=t_min, vmax=t_max)
+            for line, t in lines_data:
+                line.set_color(cmap(norm(t)))
+        else:
+            # Jei linijų nėra, normalizacija colorbar'ui gali paimti pirmos kolekcijos norm
+            if surface_colls:
+                norm = surface_colls[0].norm
+        
+        # Keičiame paviršių spalvas
+        for coll in surface_colls:
+            if not hasattr(coll, '_original_cmap'):
+                coll._original_cmap = coll.get_cmap()
+            coll.set_cmap(cmap)
+            coll.changed()
             
-        for line, t in lines_data:
-            line.set_color(cmap(norm(t)))
-            
+        # Valoме sena colorbar
         if hasattr(ax, '_pyeis_colorbar_axes'):
             try:
                 ax._pyeis_colorbar_axes.remove()
                 delattr(ax, '_pyeis_colorbar_axes')
             except: pass
+        if hasattr(ax, '_pyeis_colorbar_obj'):
+            try:
+                ax._pyeis_colorbar_obj.remove()
+                delattr(ax, '_pyeis_colorbar_obj')
+            except: pass
             
         if show_colorbar:
-            # Naudojame inset_axes už grafiko ribų, kad nesumažėtų pagrindinis grafikas
-            from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-            cb_ax = ax.inset_axes([1.02, 0, 0.04, 1.0], transform=ax.transAxes)
-            
+            is_3d = hasattr(ax, 'get_zlim')
             sm = ScalarMappable(norm=norm, cmap=cmap)
             sm.set_array([])
-            cb = ax.figure.colorbar(sm, cax=cb_ax, orientation='vertical')
+            if is_3d:
+                # 3D ašiai naudojame figure-level colorbar
+                cb = ax.figure.colorbar(sm, ax=ax, shrink=0.6, pad=0.1, orientation='vertical')
+                ax._pyeis_colorbar_obj = cb
+            else:
+                # 2D ašiai naudojame inset_axes už grafiko ribų
+                cb_ax = ax.inset_axes([1.02, 0, 0.04, 1.0], transform=ax.transAxes)
+                cb = ax.figure.colorbar(sm, cax=cb_ax, orientation='vertical')
+                ax._pyeis_colorbar_axes = cb_ax
             cb.set_label('Temperatūra, K', fontsize=9)
             cb.ax.tick_params(labelsize=8)
-            ax._pyeis_colorbar_axes = cb_ax
 
 
     def open_edit_graph_dialog(self, ax):
@@ -1203,10 +1369,10 @@ class CeraMISApp:
             
         dlg = tk.Toplevel(self.root)
         dlg.title("Redaguoti ir eksportuoti grafiką")
-        self.center_window(dlg, 600, 800)
+        self.center_window(dlg, 450, 800)
         
         # Fiksuotas rėmelis mygtukams apačioje (pakuojame pirmą)
-        bottom_frame = tk.Frame(dlg, pady=20, bg="#dddddd")
+        bottom_frame = tk.Frame(dlg, pady=8, bg="#dddddd")
         bottom_frame.pack(side=tk.BOTTOM, fill=tk.X)
         
         # Funkcijų aprašymai (perkelti į viršų, kad būtų saugiau)
@@ -1289,7 +1455,7 @@ class CeraMISApp:
                 else:
                     self.apply_thermal_palette(ax, pal, cb, cust)
                     
-                ax.figure.canvas.draw_idle()
+                ax.figure.canvas.draw()
                 # Sėkmės indikacija ant mygtuko
                 update_btn.config(bg="#43A047", text="Atnaujinta! ✅")
                 dlg.after(2000, lambda: update_btn.config(bg="#1976D2", text="Atnaujinti"))
@@ -1384,18 +1550,18 @@ class CeraMISApp:
                 if os.path.exists(tmp_path): os.remove(tmp_path)
                 
                 # Sėkmės indikacija ant mygtuko vietoj popup lango
-                copy_btn.config(bg="#43A047", text="Nukopijuota! ✅")
-                dlg.after(2000, lambda: copy_btn.config(bg="#FF8F00", text="Kopijuoti (📋)"))
+                copy_btn.config(bg="#43A047", text="Kopijuota! ✅")
+                dlg.after(2000, lambda: copy_btn.config(bg="#FF8F00", text="Kopijuoti"))
             except Exception as e:
                 messagebox.showerror("Klaida", f"Klaida: {e}", parent=dlg)
 
         # Mygtukų kūrimas
-        update_btn = tk.Button(bottom_frame, text="Atnaujinti", command=apply_changes, bg="#1976D2", fg="white", font=('Arial', 10, 'bold'), width=12)
-        update_btn.pack(side="left", padx=20)
-        copy_btn = tk.Button(bottom_frame, text="Kopijuoti (📋)", command=copy_to_clipboard, bg="#FF8F00", fg="white", font=('Arial', 10, 'bold'), width=12)
-        copy_btn.pack(side="left", padx=5)
-        export_btn = tk.Button(bottom_frame, text="Eksportuoti...", command=export_graph, bg="#546E7A", fg="white", font=('Arial', 10, 'bold'), width=15)
-        export_btn.pack(side="left", padx=5)
+        update_btn = tk.Button(bottom_frame, text="Atnaujinti", command=apply_changes, bg="#1976D2", fg="white", font=('Arial', 9, 'bold'), width=9)
+        update_btn.pack(side="left", padx=5)
+        copy_btn = tk.Button(bottom_frame, text="Kopijuoti", command=copy_to_clipboard, bg="#FF8F00", fg="white", font=('Arial', 9, 'bold'))
+        copy_btn.pack(side="left", padx=3)
+        export_btn = tk.Button(bottom_frame, text="Eksportuoti", command=export_graph, bg="#546E7A", fg="white", font=('Arial', 9, 'bold'), width=10)
+        export_btn.pack(side="left", padx=3)
 
         # Pagrindinis konteineris likusiai vietai
         main_container = tk.Frame(dlg)
@@ -1407,8 +1573,12 @@ class CeraMISApp:
         scroll_content = tk.Frame(canvas)
         
         scroll_content.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.create_window((0, 0), window=scroll_content, anchor="nw", width=580)
+        canvas_window = canvas.create_window((0, 0), window=scroll_content, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
+        
+        def _on_canvas_configure(event):
+            canvas.itemconfig(canvas_window, width=event.width)
+        canvas.bind("<Configure>", _on_canvas_configure)
         
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -1428,79 +1598,85 @@ class CeraMISApp:
         is_3d = hasattr(ax, 'get_zlim')
 
         # Title
-        tk.Label(content, text="Grafiko pavadinimas:", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=20)
+        tk.Label(content, text="Grafiko pavadinimas:", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=10)
         title_var = tk.StringVar(value=ax.get_title())
-        tk.Entry(content, textvariable=title_var, width=50).pack(padx=20)
+        tk.Entry(content, textvariable=title_var, width=35).pack(padx=10, fill='x')
 
         # X Label
-        tk.Label(content, text="X ašies pavadinimas:", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=20)
+        tk.Label(content, text="X ašies pavadinimas:", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=10)
         xlabel_var = tk.StringVar(value=ax.get_xlabel())
-        tk.Entry(content, textvariable=xlabel_var, width=50).pack(padx=20)
+        tk.Entry(content, textvariable=xlabel_var, width=35).pack(padx=10, fill='x')
 
         # Y Label
-        tk.Label(content, text="Y ašies pavadinimas:", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=20)
+        tk.Label(content, text="Y ašies pavadinimas:", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=10)
         ylabel_var = tk.StringVar(value=ax.get_ylabel())
-        tk.Entry(content, textvariable=ylabel_var, width=50).pack(padx=20)
+        tk.Entry(content, textvariable=ylabel_var, width=35).pack(padx=10, fill='x')
         
         # Z Label
         if is_3d:
-            tk.Label(content, text="Z ašies pavadinimas:", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=20)
+            tk.Label(content, text="Z ašies pavadinimas:", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=10)
             zlabel_var = tk.StringVar(value=ax.get_zlabel())
-            tk.Entry(content, textvariable=zlabel_var, width=50).pack(padx=20)
+            tk.Entry(content, textvariable=zlabel_var, width=35).pack(padx=10, fill='x')
 
         # Label distance (labelpad)
-        tk.Label(content, text="Pavadinimų atstumas nuo ašies (Labelpad):", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=20)
+        tk.Label(content, text="Labelpad (atstumas):", font=('Arial', 9, 'bold')).pack(pady=(10, 0), anchor='w', padx=10)
         try:
             current_pad = ax.xaxis.labelpad
         except:
             current_pad = 10.0
         labelpad_var = tk.DoubleVar(value=current_pad)
-        tk.Entry(content, textvariable=labelpad_var, width=10).pack(padx=20, anchor='w')
+        tk.Entry(content, textvariable=labelpad_var, width=8).pack(padx=10, anchor='w')
 
         # Limits
         lim_frame = tk.Frame(content)
-        lim_frame.pack(pady=10, padx=20, fill='x')
+        lim_frame.pack(pady=5, padx=10, fill='x')
+        lim_frame.columnconfigure(1, weight=1)
+        lim_frame.columnconfigure(3, weight=1)
 
-        tk.Label(lim_frame, text="X min:").grid(row=0, column=0, sticky='e', padx=5, pady=2)
+        tk.Label(lim_frame, text="X min:").grid(row=0, column=0, sticky='e', padx=2, pady=2)
         xmin_var = tk.StringVar(value=str(ax.get_xlim()[0]))
-        tk.Entry(lim_frame, textvariable=xmin_var, width=12).grid(row=0, column=1, padx=5, pady=2)
+        tk.Entry(lim_frame, textvariable=xmin_var).grid(row=0, column=1, padx=2, pady=2, sticky='ew')
 
-        tk.Label(lim_frame, text="X max:").grid(row=0, column=2, sticky='e', padx=5, pady=2)
+        tk.Label(lim_frame, text="X max:").grid(row=0, column=2, sticky='e', padx=2, pady=2)
         xmax_var = tk.StringVar(value=str(ax.get_xlim()[1]))
-        tk.Entry(lim_frame, textvariable=xmax_var, width=12).grid(row=0, column=3, padx=5, pady=2)
+        tk.Entry(lim_frame, textvariable=xmax_var).grid(row=0, column=3, padx=2, pady=2, sticky='ew')
 
-        tk.Label(lim_frame, text="Y min:").grid(row=1, column=0, sticky='e', padx=5, pady=2)
+        tk.Label(lim_frame, text="Y min:").grid(row=1, column=0, sticky='e', padx=2, pady=2)
         ymin_var = tk.StringVar(value=str(ax.get_ylim()[0]))
-        tk.Entry(lim_frame, textvariable=ymin_var, width=12).grid(row=1, column=1, padx=5, pady=2)
+        tk.Entry(lim_frame, textvariable=ymin_var).grid(row=1, column=1, padx=2, pady=2, sticky='ew')
 
-        tk.Label(lim_frame, text="Y max:").grid(row=1, column=2, sticky='e', padx=5, pady=2)
+        tk.Label(lim_frame, text="Y max:").grid(row=1, column=2, sticky='e', padx=2, pady=2)
         ymax_var = tk.StringVar(value=str(ax.get_ylim()[1]))
-        tk.Entry(lim_frame, textvariable=ymax_var, width=12).grid(row=1, column=3, padx=5, pady=2)
+        tk.Entry(lim_frame, textvariable=ymax_var).grid(row=1, column=3, padx=2, pady=2, sticky='ew')
         
         if is_3d:
-            tk.Label(lim_frame, text="Z min:").grid(row=2, column=0, sticky='e', padx=5, pady=2)
+            tk.Label(lim_frame, text="Z min:").grid(row=2, column=0, sticky='e', padx=2, pady=2)
             zmin_var = tk.StringVar(value=str(ax.get_zlim()[0]))
-            tk.Entry(lim_frame, textvariable=zmin_var, width=12).grid(row=2, column=1, padx=5, pady=2)
+            tk.Entry(lim_frame, textvariable=zmin_var).grid(row=2, column=1, padx=2, pady=2, sticky='ew')
             
-            tk.Label(lim_frame, text="Z max:").grid(row=2, column=2, sticky='e', padx=5, pady=2)
+            tk.Label(lim_frame, text="Z max:").grid(row=2, column=2, sticky='e', padx=2, pady=2)
             zmax_var = tk.StringVar(value=str(ax.get_zlim()[1]))
-            tk.Entry(lim_frame, textvariable=zmax_var, width=12).grid(row=2, column=3, padx=5, pady=2)
+            tk.Entry(lim_frame, textvariable=zmax_var).grid(row=2, column=3, padx=2, pady=2, sticky='ew')
 
         # Scales
         scale_frame = tk.Frame(content)
-        scale_frame.pack(pady=5, padx=20, fill='x')
+        scale_frame.pack(pady=5, padx=10, fill='x')
+        scale_frame.columnconfigure(1, weight=1)
+        scale_frame.columnconfigure(3, weight=1)
         
-        tk.Label(scale_frame, text="X ašies skalė:").grid(row=0, column=0, sticky='e', padx=5)
+        tk.Label(scale_frame, text="X skalė:").grid(row=0, column=0, sticky='e', padx=2)
         xscale_var = tk.StringVar(value=ax.get_xscale())
-        ttk.Combobox(scale_frame, textvariable=xscale_var, values=["linear", "log"], width=10, state="readonly").grid(row=0, column=1, padx=5)
+        ttk.Combobox(scale_frame, textvariable=xscale_var, values=["linear", "log"], state="readonly").grid(row=0, column=1, padx=2, sticky='ew')
         
-        tk.Label(scale_frame, text="Y ašies skalė:").grid(row=0, column=2, sticky='e', padx=5)
+        tk.Label(scale_frame, text="Y skalė:").grid(row=0, column=2, sticky='e', padx=2)
         yscale_var = tk.StringVar(value=ax.get_yscale())
-        ttk.Combobox(scale_frame, textvariable=yscale_var, values=["linear", "log"], width=10, state="readonly").grid(row=0, column=3, padx=5)
+        ttk.Combobox(scale_frame, textvariable=yscale_var, values=["linear", "log"], state="readonly").grid(row=0, column=3, padx=2, sticky='ew')
 
         # Inversion Frame
-        inv_frame = tk.LabelFrame(content, text="Ašių kryptis (Invertuoti)", font=('Arial', 9, 'bold'), padx=10, pady=5)
-        inv_frame.pack(pady=5, padx=20, fill='x')
+        inv_frame = tk.LabelFrame(content, text="Invertuoti ašis", font=('Arial', 9, 'bold'), padx=5, pady=3)
+        inv_frame.pack(pady=5, padx=10, fill='x')
+        inv_frame.columnconfigure(0, weight=1)
+        inv_frame.columnconfigure(1, weight=1)
         
         inv_x_var = tk.BooleanVar(value=bool(ax.xaxis_inverted()))
         tk.Checkbutton(inv_frame, text="Invertuoti X", variable=inv_x_var).grid(row=0, column=0, sticky='w', padx=5)
@@ -1514,12 +1690,12 @@ class CeraMISApp:
 
         # Legend
         legend_var = tk.BooleanVar(value=ax.get_legend() is not None)
-        tk.Checkbutton(content, text="Rodyti legendą grafike", variable=legend_var, font=('Arial', 9, 'bold')).pack(pady=5, anchor='w', padx=20)
+        tk.Checkbutton(content, text="Rodyti legendą", variable=legend_var, font=('Arial', 9, 'bold')).pack(pady=3, anchor='w', padx=10)
 
         # 3D Settings Frame
         if is_3d:
-            threed_frame = tk.LabelFrame(content, text="3D grafiko nustatymai", font=('Arial', 9, 'bold'), padx=10, pady=10)
-            threed_frame.pack(pady=10, padx=20, fill='x')
+            threed_frame = tk.LabelFrame(content, text="3D nustatymai", font=('Arial', 9, 'bold'), padx=5, pady=5)
+            threed_frame.pack(pady=5, padx=10, fill='x')
             
             stabilize_var = tk.BooleanVar(value=True)
             tk.Checkbutton(threed_frame, text="Stabilizuoti ašių vietas (fiksuoti)", variable=stabilize_var).grid(row=0, column=0, sticky='w')
@@ -1529,8 +1705,10 @@ class CeraMISApp:
             ttk.Combobox(threed_frame, textvariable=z_pos_var, values=["left", "right"], width=10, state="readonly").grid(row=1, column=1, sticky='w', pady=(5,0))
 
         # Palette Frame
-        pal_frame = tk.LabelFrame(content, text="Terminės paletės (pagal temperatūrą)", font=('Arial', 9, 'bold'), padx=10, pady=10)
-        pal_frame.pack(pady=10, padx=20, fill='x')
+        pal_frame = tk.LabelFrame(content, text="Terminės paletės", font=('Arial', 9, 'bold'), padx=5, pady=5)
+        pal_frame.pack(pady=5, padx=10, fill='x')
+        pal_frame.columnconfigure(0, weight=1)
+        pal_frame.columnconfigure(1, weight=1)
         
         palette_var = tk.StringVar(value=getattr(ax, '_pyeis_palette', 'original'))
         ttk.Radiobutton(pal_frame, text="Originalios spalvos", variable=palette_var, value="original").grid(row=0, column=0, sticky='w')
@@ -1573,16 +1751,18 @@ class CeraMISApp:
 
         # Export Size
         size_frame = tk.Frame(content)
-        size_frame.pack(pady=10, padx=20, fill='x')
-        tk.Label(size_frame, text="Eksportuojamo grafiko dydis (coliais):", font=('Arial', 9, 'bold')).grid(row=0, column=0, columnspan=4, sticky='w', pady=(0, 5))
+        size_frame.pack(pady=5, padx=10, fill='x')
+        size_frame.columnconfigure(1, weight=1)
+        size_frame.columnconfigure(3, weight=1)
+        tk.Label(size_frame, text="Eksporto dydis (coliais):", font=('Arial', 9, 'bold')).grid(row=0, column=0, columnspan=4, sticky='w', pady=(0, 3))
         
-        tk.Label(size_frame, text="Plotis:").grid(row=1, column=0, sticky='e', padx=5)
+        tk.Label(size_frame, text="W:").grid(row=1, column=0, sticky='e', padx=2)
         width_var = tk.StringVar(value="8.0")
-        tk.Entry(size_frame, textvariable=width_var, width=8).grid(row=1, column=1, padx=5)
+        tk.Entry(size_frame, textvariable=width_var, width=6).grid(row=1, column=1, padx=2, sticky='ew')
         
-        tk.Label(size_frame, text="Aukštis:").grid(row=1, column=2, sticky='e', padx=5)
+        tk.Label(size_frame, text="H:").grid(row=1, column=2, sticky='e', padx=2)
         height_var = tk.StringVar(value="6.0")
-        tk.Entry(size_frame, textvariable=height_var, width=8).grid(row=1, column=3, padx=5)
+        tk.Entry(size_frame, textvariable=height_var, width=6).grid(row=1, column=3, padx=2, sticky='ew')
 
 
     # ─── AŠIŲ RINKINYS ────────────────────────────────────────────────────────
@@ -1594,6 +1774,7 @@ class CeraMISApp:
         "ε' – dielektrinės": "ep",
         "ε'' – nuostolių": "edp",
         "σ' – laidumo": "sp",
+        "σ'' – savo talpos": "sdp",
         "M'' – modulio": "mdp",
         "-Θ – fazės kampo": "th",
         "tanδ – nuostolių tang.": "tan_delta",
@@ -1612,6 +1793,7 @@ class CeraMISApp:
         "ep":         "ε' [vnt.]",
         "edp":        "ε'' [vnt.]",
         "sp":         "σ' [S/m]",
+        "sdp":        "σ'' [S/m]",
         "mdp":        "M'' [vnt.]",
         "th":         "-Θ [°]",
         "tan_delta":  "tanδ",
@@ -1631,6 +1813,7 @@ class CeraMISApp:
         if key == "ep":         return d['ep']
         if key == "edp":        return d['edp']
         if key == "sp":         return d['sp']
+        if key == "sdp":        return d['sdp']
         if key == "mdp":        return d['mdp']
         if key == "th":         return d['th']
         if key == "tan_delta":  return d['tan_delta']
@@ -1685,6 +1868,7 @@ class CeraMISApp:
                 ep  = -z_n.imag / (w * EPSILON_0 * mod_sq_n)
                 edp =  z_n.real / (w * EPSILON_0 * mod_sq_n)
                 sp  =  z_n.real / mod_sq_n
+                sdp  = -z_n.imag / mod_sq_n
                 mdp =  w * EPSILON_0 * z_n.real
                 th  =  np.degrees(np.arctan2(z_n.imag, z_n.real))
                 tan_d = np.where(ep != 0, edp / ep, 0.0)
@@ -1695,7 +1879,7 @@ class CeraMISApp:
                 logf = np.log10(f)
                 pseudo_drt = -np.gradient(z_n.real, logf)
 
-                d = dict(ep=ep, edp=edp, sp=sp, mdp=mdp, th=th,
+                d = dict(ep=ep, edp=edp, sp=sp, sdp=sdp, mdp=mdp, th=th,
                          tan_delta=tan_d, z_norm=z_n_plot, m_norm=m_n, pseudo_drt=pseudo_drt)
 
                 def get(key):
@@ -1718,9 +1902,11 @@ class CeraMISApp:
             # Sukuriame naują langą
             sw = tk.Toplevel(self.root)
             sw.title("Savo grafikas")
+            if self.is_dark:
+                sw.configure(bg='#252526')
             self.center_window(sw, 1000, 750)
 
-            fig = Figure(figsize=(9, 6), dpi=100, facecolor='white')
+            fig = Figure(figsize=(9, 6), dpi=100, facecolor='#252526' if self.is_dark else 'white')
             xlabel = self.AXIS_LABELS[xk]
             ylabel = self.AXIS_LABELS[yk]
 
@@ -1731,7 +1917,8 @@ class CeraMISApp:
                 temp_to_color = {t: f"C{i % 10}" for i, t in enumerate(selected)}
                 for temp, xd, yd, zd in datasets:
                     color = temp_to_color[temp] if len(selected) > 1 else '#1f77b4'
-                    ax.plot(xd, yd, zd, 'o-', ms=2, lw=0.8, color=color, label=f"{temp:g} K")
+                    line = ax.plot(xd, yd, zd, 'o-', ms=2, lw=0.8, color=color, label=f"{temp:g} K")
+                    line[0].set_gid(str(temp))
                 ax.set_zlabel(zlabel)
                 ax.set_title(f"{xlabel} / {ylabel} / {zlabel}")
             else:
@@ -1740,7 +1927,8 @@ class CeraMISApp:
                 temp_to_color = {t: f"C{i % 10}" for i, t in enumerate(selected)}
                 for temp, xd, yd, _ignore in datasets:
                     color = temp_to_color[temp] if len(selected) > 1 else '#1f77b4'
-                    ax.plot(xd, yd, 'o-', ms=2, lw=0.8, color=color, label=f"{temp:g} K")
+                    line = ax.plot(xd, yd, 'o-', ms=2, lw=0.8, color=color, label=f"{temp:g} K")
+                    line[0].set_gid(str(temp))
                 ax.set_title(f"{xlabel} vs {ylabel}")
 
             ax.set_xlabel(xlabel, labelpad=15, rotation=0)
@@ -1760,6 +1948,11 @@ class CeraMISApp:
             
             toolbar = NavigationToolbar2Tk(canvas, sw)
             toolbar.update()
+            
+            # Prijungiame dvigubo dešinio paspaudimo redagavimą
+            canvas.mpl_connect('button_press_event', self.on_plot_click)
+            fig.canvas = canvas
+            
             sw.update()
             # 1px refreshas
             sw.geometry(f"1001x751")
@@ -1864,7 +2057,7 @@ class CeraMISApp:
             Edp_grid = np.array(Edp_grid)
             Th_grid = np.array(Th_grid)
             
-            fig = Figure(figsize=(22, 12), dpi=100, facecolor='white')
+            fig = Figure(figsize=(22, 12), dpi=100, facecolor='#252526' if self.is_dark else 'white')
             
             # 1. 3D Naikvisto-Bodė grafikas (Dažnio spiralė)
             ax1 = fig.add_subplot(251, projection='3d')
@@ -1872,7 +2065,8 @@ class CeraMISApp:
             norm = mcolors.Normalize(vmin=t_min, vmax=t_max)
             cmap_v = plt.cm.viridis
             for i, temp in enumerate(temps_valid):
-                ax1.plot(Z_real_grid[i], -Z_imag_grid[i], log_f_common, label=f"{temp} K", color=cmap_v(norm(temp)))
+                ln = ax1.plot(Z_real_grid[i], -Z_imag_grid[i], log_f_common, label=f"{temp} K", color=cmap_v(norm(temp)))
+                ln[0].set_gid(str(temp))
             ax1.set_title("3D Naikvisto-Bodė spiralė")
             ax1.set_xlabel("Z', Ω·m")
             ax1.set_ylabel("-Z'', Ω·m")
@@ -1882,7 +2076,8 @@ class CeraMISApp:
             ax2 = fig.add_subplot(252, projection='3d')
             for i, temp in enumerate(temps_valid):
                 T_arr = np.full_like(Z_real_grid[i], temp)
-                ax2.plot(Z_real_grid[i], -Z_imag_grid[i], T_arr, color=cmap_v(norm(temp)))
+                ln = ax2.plot(Z_real_grid[i], -Z_imag_grid[i], T_arr, color=cmap_v(norm(temp)))
+                ln[0].set_gid(str(temp))
             ax2.set_title("Naikvisto evoliucija")
             ax2.set_xlabel("Z', Ω·m")
             ax2.set_ylabel("-Z'', Ω·m")
@@ -1893,7 +2088,8 @@ class CeraMISApp:
             cmap_p = plt.cm.plasma
             for i, temp in enumerate(temps_valid):
                 T_arr = np.full_like(Ep_grid[i], temp)
-                ax3.plot(Ep_grid[i], Edp_grid[i], T_arr, color=cmap_p(norm(temp)))
+                ln = ax3.plot(Ep_grid[i], Edp_grid[i], T_arr, color=cmap_p(norm(temp)))
+                ln[0].set_gid(str(temp))
             ax3.set_title("Cole-Cole 3D")
             ax3.set_xlabel("ε', vnt.")
             ax3.set_ylabel("ε'', vnt.")
@@ -1904,7 +2100,8 @@ class CeraMISApp:
             cmap_i = plt.cm.inferno
             for i, temp in enumerate(temps_valid):
                 T_arr = np.full_like(Th_grid[i], temp)
-                ax4.plot(log_f_common, Th_grid[i], T_arr, color=cmap_i(norm(temp)))
+                ln = ax4.plot(log_f_common, Th_grid[i], T_arr, color=cmap_i(norm(temp)))
+                ln[0].set_gid(str(temp))
             ax4.set_title("Fazės kampo 3D (-Θ)")
             ax4.set_xlabel("log(f), Hz")
             ax4.set_ylabel("-Θ, °")
@@ -1972,6 +2169,8 @@ class CeraMISApp:
             # Sukuriame Toplevel langą
             sw = tk.Toplevel(self.root)
             sw.title("3D Išplėstinė EIS Analizė")
+            if self.is_dark:
+                sw.configure(bg='#252526')
             
             # Naudojame adaptyvų lango dydį
             w, h = self.center_window(sw, 3200, 1800)
@@ -1992,6 +2191,7 @@ class CeraMISApp:
             tb.update()
             
             canvas.mpl_connect('button_press_event', self.on_plot_click)
+            fig.canvas = canvas
             
             # Vieno pikselio "refresh" triukas lango išdėstymui (layout fix)
             sw.update()
@@ -2282,8 +2482,108 @@ if __name__ == "__main__":
     base_font_size = int(10 * gui_scale)
     default_font = ("Segoe UI", base_font_size)
     root.option_add("*Font", default_font)
-    style = ttk.Style(root)
-    style.configure(".", font=default_font)
+    
+    is_dark = get_config_bool('dark_mode', False)
+    if is_dark:
+        try:
+            import matplotlib.pyplot as plt
+            plt.rcParams.update({
+                'figure.facecolor': '#252526',
+                'axes.facecolor': '#1e1e1e',
+                'axes.edgecolor': '#3e3e3e',
+                'axes.labelcolor': '#e0e0e0',
+                'xtick.color': '#e0e0e0',
+                'ytick.color': '#e0e0e0',
+                'text.color': '#e0e0e0',
+                'grid.color': '#555555',
+                'grid.alpha': 0.3,
+                'legend.facecolor': '#2d2d2d',
+                'legend.edgecolor': '#3e3e3e'
+            })
+        except Exception as e:
+            print(f"Nepavyko nustatyti Matplotlib rcParams: {e}")
+            
+        bg_color = "#252526"
+        fg_color = "#e0e0e0"
+        field_bg = "#1e1e1e"
+        border_color = "#3e3e3e"
+        accent_color = "#007acc"
+        
+        root.configure(bg=bg_color)
+        root.option_add("*background", bg_color)
+        root.option_add("*foreground", fg_color)
+        root.option_add("*fieldBackground", field_bg)
+        root.option_add("*insertBackground", fg_color)
+        root.option_add("*selectBackground", accent_color)
+        root.option_add("*selectForeground", "#ffffff")
+        root.option_add("*Label.background", bg_color)
+        root.option_add("*Label.foreground", fg_color)
+        root.option_add("*Frame.background", bg_color)
+        root.option_add("*LabelFrame.background", bg_color)
+        root.option_add("*LabelFrame.foreground", fg_color)
+        root.option_add("*Checkbutton.background", bg_color)
+        root.option_add("*Checkbutton.foreground", fg_color)
+        root.option_add("*Checkbutton.selectColor", field_bg)
+        root.option_add("*Checkbutton.selectcolor", field_bg)
+        root.option_add("*Checkbutton.activeBackground", bg_color)
+        root.option_add("*Checkbutton.activeForeground", fg_color)
+        root.option_add("*Radiobutton.background", bg_color)
+        root.option_add("*Radiobutton.foreground", fg_color)
+        root.option_add("*Radiobutton.selectColor", field_bg)
+        root.option_add("*Radiobutton.selectcolor", field_bg)
+        root.option_add("*Radiobutton.activeBackground", bg_color)
+        root.option_add("*Radiobutton.activeForeground", fg_color)
+        root.option_add("*Canvas.background", bg_color)
+        root.option_add("*Button.background", "#333333")
+        root.option_add("*Button.foreground", fg_color)
+        root.option_add("*Button.activeBackground", "#444444")
+        root.option_add("*Button.activeForeground", fg_color)
+        root.option_add("*Listbox.background", field_bg)
+        root.option_add("*Listbox.foreground", fg_color)
+        root.option_add("*Listbox.selectBackground", accent_color)
+        root.option_add("*Listbox.selectForeground", "#ffffff")
+        root.option_add("*TCombobox*Listbox.background", field_bg)
+        root.option_add("*TCombobox*Listbox.foreground", fg_color)
+        root.option_add("*TCombobox*Listbox.selectBackground", accent_color)
+        root.option_add("*TCombobox*Listbox.selectForeground", "#ffffff")
+        root.option_add("*TCombobox*Listbox*font", default_font)
+        
+        style = ttk.Style(root)
+        style.theme_use('clam')
+        
+        style.configure(".", font=default_font, background=bg_color, foreground=fg_color,
+                        fieldbackground=field_bg, bordercolor=border_color,
+                        darkcolor=bg_color, lightcolor=bg_color)
+        style.configure("TFrame", background=bg_color)
+        style.configure("TLabel", background=bg_color, foreground=fg_color)
+        style.configure("TLabelframe", background=bg_color, foreground=fg_color, bordercolor=border_color)
+        style.configure("TLabelframe.Label", background=bg_color, foreground=fg_color)
+        style.configure("TNotebook", background=bg_color, tabmargins=[2, 4, 2, 0])
+        style.configure("TNotebook.Tab", background="#2d2d2d", foreground="#888888", padding=[10, 4], focuscolor=bg_color)
+        style.map("TNotebook.Tab", background=[("selected", bg_color)], foreground=[("selected", fg_color)])
+        style.configure("TButton", background="#333333", foreground=fg_color, bordercolor=border_color, focuscolor=accent_color)
+        style.map("TButton", background=[("active", "#444444"), ("pressed", "#555555")])
+        style.configure("TCombobox", background="#333333", foreground=fg_color, fieldbackground=field_bg, bordercolor=border_color, arrowcolor=fg_color)
+        style.map("TCombobox", 
+                  fieldbackground=[("readonly", field_bg), ("disabled", bg_color), ("active", "#1e1e1e")],
+                  foreground=[("readonly", fg_color), ("disabled", "#888888")],
+                  arrowcolor=[("readonly", fg_color), ("disabled", "#888888")],
+                  background=[("readonly", "#333333"), ("active", "#444444")])
+        style.configure("TEntry", fieldbackground=field_bg, foreground=fg_color, bordercolor=border_color, insertcolor=fg_color)
+        style.map("TEntry",
+                  fieldbackground=[("readonly", field_bg), ("disabled", bg_color)],
+                  foreground=[("readonly", fg_color), ("disabled", "#888888")])
+        style.configure("TCheckbutton", background=bg_color, foreground=fg_color, indicatorbackground=field_bg, indicatorcolor=bg_color)
+        style.map("TCheckbutton", background=[("active", bg_color)], indicatorbackground=[("selected", accent_color)])
+        style.configure("TRadiobutton", background=bg_color, foreground=fg_color, indicatorbackground=field_bg)
+        style.configure("Vertical.TScrollbar", background="#333333", bordercolor=border_color, arrowcolor=fg_color, troughcolor="#1e1e1e")
+        style.map("Vertical.TScrollbar", background=[("active", "#444444"), ("pressed", "#555555")])
+        style.configure("Treeview", background=field_bg, foreground=fg_color, fieldbackground=field_bg, bordercolor=border_color)
+        style.configure("Treeview.Heading", background="#2d2d2d", foreground=fg_color, bordercolor=border_color)
+        style.map("Treeview", background=[("selected", accent_color)], foreground=[("selected", "#ffffff")])
+    else:
+        style = ttk.Style(root)
+        style.configure(".", font=default_font)
     
     app = CeraMISApp(root)
     root.mainloop()

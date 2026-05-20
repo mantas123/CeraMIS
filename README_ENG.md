@@ -13,7 +13,7 @@
 
 ---
 
-# 🇬🇧 English Documentation
+# English Documentation
 
 > [!NOTE]
 > For the Lithuanian version of the documentation, please see [README.md](README.md).
@@ -40,9 +40,27 @@ graph TD
 ```
 
 ### 1. 📈 EIS Analysis (Electrochemical Impedance Spectroscopy)
-*   **3x3 Plot Matrix**: Displays 9 distinct physical plots simultaneously, customizable from 16 available types (Nyquist, Bode, permittivity, conductivity, electrical modulus, Summerfield scaling, etc.).
+*   **3x3 Plot Matrix**: Displays 9 distinct physical plots simultaneously, customizable from **17 available types** (Nyquist, Bode, permittivity, conductivity, electrical modulus, Summerfield scaling, Cole-Cole, etc.).
 *   **Geometric Normalization**: Automatic conversion of raw values to normalized ones based on specimen thickness ($L$) and area ($A$).
 *   **Supported Formats**: Direct import of experimental `.txt` files, ZView `.z` files, and multi-sheet Excel `.xlsx` files.
+
+#### 🖊️ Plot Editing and Export Dialog Features
+
+Double-clicking the **right mouse button** on any plot (2D or 3D) opens a comprehensive editing dialog with the following features:
+
+| Feature | Description |
+|---|---|
+| Plot & Axes Titles | Free-text editing for labels |
+| X/Y Limits | Precise axis range constraints |
+| Scale | Logarithmic / Linear selection per axis |
+| Invert Axes | X, Y (and Z for 3D) |
+| Legend | Toggle on / off |
+| **Thermal Color Palettes** | Recolor curves by temperature: Original / Ironbow / Rainbow (Turbo) / Arctic / Custom (2 colors) |
+| **Colorbar** | Temperature color scale beside the plot |
+| **Apply to All Subplots** | Applies the palette to the entire 3x3 matrix instantly |
+| Export Size | Width and height in inches (dpi=300) |
+| **Export** | Save as PNG / PDF / SVG / EPS |
+| **Copy** | Copies the plot directly to the Windows clipboard |
 
 > [!TIP]
 > A detailed guide for the EIS module is available in: **[README_EIS_PLOTS.md](README_EIS_PLOTS.md)**.
@@ -95,7 +113,50 @@ graph TD
 > [!TIP]
 > A detailed guide for the crystal visualizer is available in: **[README_CRYSTAL.md](README_CRYSTAL.md)**.
 
-### 8. ⚙️ Settings
+### 8. 📉 Custom Plot Creation & 3D Analysis
+
+*   **Free axis selection**: You can choose any of the **17 physical quantities** for the X, Y, and Z (3D) axes:
+
+| Quantity | Symbol | Units |
+|---|---|---|
+| Frequency | $f$ | Hz |
+| Real Impedance | $Z'$ | Ω·m |
+| Imaginary Impedance | $-Z''$ | Ω·m |
+| Impedance Modulus | $\|Z\|$ | Ω·m |
+| Real Permittivity | $\varepsilon'$ | a.u. |
+| Dielectric Loss | $\varepsilon''$ | a.u. |
+| **Real Conductivity** | $\sigma'$ | S/m |
+| **Imaginary Conductivity (Self-Capacitance)** | $\sigma''$ | S/m |
+| Electrical Modulus | $M''$ | a.u. |
+| Phase Angle | $-\Theta$ | ° |
+| Loss Tangent | $\tan\delta$ | — |
+| Normalized Z'' | $Z''/Z''_{max}$ | — |
+| Normalized M'' | $M''/M''_{max}$ | — |
+| Pseudo-DRT | $-dZ'/d(\log f)$ | — |
+| Temperature | $T$ | K |
+| Inverse Temperature | $1000/T$ | K⁻¹ |
+
+> [!NOTE]
+> **σ'' (Imaginary Conductivity / Self-Capacitance)** is calculated as:
+> $$\sigma'' = -\frac{Z_n''}{|Z_n|^2} \quad \text{(S/m)}$$
+> A plot of σ' vs σ'' (Nyquist-type in conductivity space) allows direct separation of resistive and capacitive components.
+
+*   **3D Advanced Analysis** (10 plots in one window):
+    1. 3D Nyquist-Bode Spiral
+    2. Nyquist Evolution by T
+    3. Cole-Cole 3D
+    4. Phase Angle 3D
+    5. AC Conductivity Surface (log σ' vs log f vs T)
+    6. Electrical Modulus Surface (M'' vs f vs T)
+    7. Pseudo-DRT Relief
+    8. Conductivity Map (1000/T axis)
+    9. Normalized Z'' Surface
+    10. Normalized M'' Surface
+
+> [!TIP]
+> The color palette for all 3D and 2D custom plots can be changed by **double right-clicking** on the plot area.
+
+### 9. ⚙️ Settings
 *   **Language Selection**: Toggle between English (`en`) and Lithuanian (`lt`). Standalone subprocesses, Matplotlib canvases, QTableWidgets, and PyVista widgets instantly honor the chosen locale.
 *   **GUI Scale**: Adjustable window scaling factor from `0.75x` to `2.0x` for high-DPI (4K) monitors.
 *   **SAM Model Selection**: Toggle between **SAM 2.1** and **SAM 3.1** directly within the graphical settings tab.

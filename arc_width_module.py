@@ -21,7 +21,7 @@ from matplotlib.widgets import RectangleSelector
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from language_driver import _, get_config_val
+from language_driver import _, get_config_val, get_config_bool
 
 def to_sci_unicode(value, decimals=2):
     """Konvertuoja skaičių į 10ⁿ formatą su Unicode laipsniais ir kableliu."""
@@ -65,20 +65,30 @@ def show_arc_width(app):
         initial_temp = all_avail_temps[0]
         plot_temps = [str_to_orig[initial_temp]]
         
+    is_dark = get_config_bool('dark_mode', False)
+    bg_color = "#252526" if is_dark else "#F5F5F5"
+    fg_color = "#e0e0e0" if is_dark else "#333333"
+    title_color = "#007acc" if is_dark else "#1A237E"
+    win_bg = "#252526" if is_dark else "white"
+    res_text_bg = "#1e1e1e" if is_dark else "white"
+    res_text_fg = "#e0e0e0" if is_dark else "black"
+
     # Toplevel langas
     sw = tk.Toplevel(app.root)
     sw.title(_('arc_window_title', 'CeraMIS - Arc Analysis (Rectangle Selection)'))
+    if is_dark:
+        sw.configure(bg=win_bg)
     w, h = app.center_window(sw, 1700, 1350)
     
     # Pagrindinis rėmelis horizontaliam išdėstymui
-    main_frame = tk.Frame(sw)
+    main_frame = tk.Frame(sw, bg=bg_color if is_dark else None)
     main_frame.pack(fill=tk.BOTH, expand=True)
     
     # Kairysis rėmelis grafikui
-    plot_frame = tk.Frame(main_frame)
+    plot_frame = tk.Frame(main_frame, bg=bg_color if is_dark else None)
     
     # 1. Pirmiausia pakuojame dešinįjį rėmelį (Sidebar), kad jis niekada nepasislėptų ir nesusispaustų
-    sidebar = tk.Frame(main_frame, width=340, bg="#F5F5F5", bd=1, relief="solid")
+    sidebar = tk.Frame(main_frame, width=340, bg=bg_color, bd=1, relief="solid")
     sidebar.pack(side=tk.RIGHT, fill=tk.Y, padx=0, pady=0)
     sidebar.pack_propagate(False) # Užfiksuojame plotį
     
@@ -86,7 +96,7 @@ def show_arc_width(app):
     plot_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
     
     # Antraštės sidebare
-    tk.Label(sidebar, text=_('arc_sidebar_title', 'ARC WIDTH ANALYSIS'), font=('Arial', 12, 'bold'), bg="#F5F5F5", fg="#1A237E").pack(pady=15)
+    tk.Label(sidebar, text=_('arc_sidebar_title', 'ARC WIDTH ANALYSIS'), font=('Arial', 12, 'bold'), bg=bg_color, fg=title_color).pack(pady=15)
     
     desc_text = _('arc_desc_usage', (
         "Usage:\n"
@@ -94,10 +104,10 @@ def show_arc_width(app):
         "2. Click [Lock Arc] or press 'S' to save the arc.\n"
         "3. Drag around another arc and repeat."
     ))
-    tk.Label(sidebar, text=desc_text, font=('Arial', 9), justify="left", bg="#F5F5F5", fg="#333", wraplength=310).pack(pady=5, padx=10)
+    tk.Label(sidebar, text=desc_text, font=('Arial', 9), justify="left", bg=bg_color, fg=fg_color, wraplength=310).pack(pady=5, padx=10)
     
     # Temperatūros parinkimas (Dropdown)
-    tk.Label(sidebar, text=_('arc_temp_selection', 'Temperature Selection:'), font=('Arial', 10, 'bold'), bg="#F5F5F5").pack(anchor="w", padx=15, pady=(10, 2))
+    tk.Label(sidebar, text=_('arc_temp_selection', 'Temperature Selection:'), font=('Arial', 10, 'bold'), bg=bg_color, fg=fg_color).pack(anchor="w", padx=15, pady=(10, 2))
     
     combo_values = [_('arc_all_selected', 'All Selected')] + all_avail_temps
     
@@ -106,20 +116,20 @@ def show_arc_width(app):
     temp_combo.pack(fill="x", padx=15, pady=2)
     
     # Mygtukų konteineris
-    btn_frame = tk.Frame(sidebar, bg="#F5F5F5")
+    btn_frame = tk.Frame(sidebar, bg=bg_color)
     btn_frame.pack(pady=15, padx=10, fill="x")
     
     # Užfiksuotų rezultatų Text laukas
-    tk.Label(sidebar, text=_('arc_locked_results_title', 'Locked Results:'), font=('Arial', 10, 'bold'), bg="#F5F5F5").pack(anchor="w", padx=15, pady=(10, 5))
+    tk.Label(sidebar, text=_('arc_locked_results_title', 'Locked Results:'), font=('Arial', 10, 'bold'), bg=bg_color, fg=fg_color).pack(anchor="w", padx=15, pady=(10, 5))
     
     # Scrollable text widget
-    txt_frame = tk.Frame(sidebar)
+    txt_frame = tk.Frame(sidebar, bg=bg_color)
     txt_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
     
     txt_scroll = tk.Scrollbar(txt_frame)
     txt_scroll.pack(side=tk.RIGHT, fill=tk.Y)
     
-    res_text = tk.Text(txt_frame, height=20, width=35, font=('Consolas', 9), yscrollcommand=txt_scroll.set)
+    res_text = tk.Text(txt_frame, height=20, width=35, font=('Consolas', 9), yscrollcommand=txt_scroll.set, bg=res_text_bg, fg=res_text_fg, insertbackground=res_text_fg)
     res_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
     txt_scroll.config(command=res_text.yview)
     
@@ -128,7 +138,7 @@ def show_arc_width(app):
     
     # Duomenų rinkiniai ir Matplotlib ašis
     dpi = 100
-    fig = Figure(figsize=((w - 340) / dpi, h / dpi), dpi=dpi, facecolor='white')
+    fig = Figure(figsize=((w - 340) / dpi, h / dpi), dpi=dpi, facecolor='#252526' if is_dark else 'white')
     ax = fig.add_subplot(111)
     
     all_datasets = {}
@@ -292,6 +302,73 @@ def show_arc_width(app):
                     
         ax.set_title(_('arc_plot_instruction', 'Use right click to drag a rectangle around an arc\nLocked arcs: {}').format(len(app.locked_arc_data)))
         
+        # Pridedame pelės užvedimo koordinačių formatavimą, kad rodytų dažnį Naikvisto grafike
+        def custom_formatter(x, y):
+            try:
+                xs = ax.format_xdata(x)
+                ys = ax.format_ydata(y)
+            except Exception:
+                xs = f"{x:.4g}"
+                ys = f"{y:.4g}"
+            
+            base_txt = f"x={xs}, y={ys}"
+            
+            if not all_datasets:
+                return base_txt
+                
+            min_dist = float('inf')
+            closest_f = None
+            closest_temp = None
+            
+            try:
+                cursor_pixel = ax.transData.transform((x, y))
+            except Exception:
+                return base_txt
+                
+            for temp, (f_data, z_n, color) in all_datasets.items():
+                x_data = z_n.real
+                y_data = -z_n.imag
+                if x_data is None or y_data is None or len(x_data) == 0:
+                    continue
+                    
+                mask = np.isfinite(x_data) & np.isfinite(y_data)
+                if not np.any(mask):
+                    continue
+                    
+                indices = np.where(mask)[0]
+                pts_data = np.column_stack((x_data[mask], y_data[mask]))
+                try:
+                    pts_pixel = ax.transData.transform(pts_data)
+                except Exception:
+                    continue
+                    
+                # Atstumas ekrano pikseliais
+                dists = np.sum((pts_pixel - cursor_pixel) ** 2, axis=1)
+                if len(dists) == 0:
+                    continue
+                    
+                idx_filtered = np.argmin(dists)
+                dist = dists[idx_filtered]
+                
+                if dist < min_dist:
+                    min_dist = dist
+                    closest_idx = indices[idx_filtered]
+                    if closest_idx < len(f_data):
+                        closest_f = f_data[closest_idx]
+                        closest_temp = temp
+                        
+            # 50 pikselių atstumo riba (50^2 = 2500)
+            if closest_f is not None and min_dist < 2500:
+                f_str = to_sci_unicode(closest_f)
+                try:
+                    temp_lbl = f"{closest_temp:g}" if isinstance(closest_temp, (int, float)) else str(closest_temp)
+                except:
+                    temp_lbl = str(closest_temp)
+                return f"{base_txt} | f={f_str}Hz ({temp_lbl} K)"
+            return base_txt
+
+        ax.format_coord = custom_formatter
+
         # Privalome iš naujo atkurti RectangleSelector po ax.clear()!
         app.rs = RectangleSelector(ax, on_select,
                                      useblit=False,
@@ -687,7 +764,7 @@ def show_arc_width(app):
     btn_excel.pack(side=tk.BOTTOM, fill="x", padx=15, pady=5)
 
     # Toolbaras ir Canvas kairėje
-    tb_frame = tk.Frame(plot_frame)
+    tb_frame = tk.Frame(plot_frame, bg=bg_color if is_dark else None)
     tb_frame.pack(side=tk.BOTTOM, fill=tk.X)
     
     canvas = FigureCanvasTkAgg(fig, master=plot_frame)

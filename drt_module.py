@@ -25,7 +25,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.widgets import RectangleSelector
 import matplotlib.pyplot as plt
 
-from language_driver import _
+from language_driver import _, get_config_bool
 
 
 # ─── DRT PAGALBINĖS IR MATEMATINĖS FUNKCIJOS ───────────────────────────────
@@ -243,9 +243,12 @@ def plot_3d_drt(app):
     
     sw = tk.Toplevel(app.root)
     sw.title(_('drt_3d_map_title', '3D DRT Map'))
+    is_dark = get_config_bool('dark_mode', False)
+    if is_dark:
+        sw.configure(bg='#252526')
     app.center_window(sw, 1400, 1001)
     
-    fig = Figure(figsize=(12, 9), dpi=100, facecolor='white')
+    fig = Figure(figsize=(12, 9), dpi=100, facecolor='#252526' if is_dark else 'white')
     ax = fig.add_subplot(111, projection='3d')
     surf = ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none', alpha=0.9, antialiased=True)
     
@@ -277,22 +280,28 @@ def plot_3d_drt(app):
     canvas.draw()
 
 def _plot_drt_popup(app, tau, gamma, label):
+    is_dark = get_config_bool('dark_mode', False)
+    bg_color = '#252526' if is_dark else 'white'
+    fg_color = '#e0e0e0' if is_dark else '#000000'
+    sub_fg_color = '#a0a0a0' if is_dark else '#555'
+    drt_res_fg = '#81c784' if is_dark else '#2E7D32'
+
     win = tk.Toplevel(app.root)
     win.title(_('drt_popup_title', 'DRT Analysis - {}').format(label))
     app.center_window(win, 1560, 1106)
-    win.configure(bg='white')
+    win.configure(bg=bg_color)
 
     app._drt_temp_peak = None
     app._drt_saved_peaks = []
     
-    ctrl_f = tk.Frame(win, bg='white', pady=10)
+    ctrl_f = tk.Frame(win, bg=bg_color, pady=10)
     ctrl_f.pack(fill=tk.X)
     
     info_label = tk.Label(ctrl_f, text=_('drt_mark_info', 'Mark a peak region on the chart (drag a rectangle)'), 
-                          font=('Segoe UI', 10, 'italic'), bg='white', fg='#555')
+                          font=('Segoe UI', 10, 'italic'), bg=bg_color, fg=sub_fg_color)
     info_label.pack()
     
-    btn_f = tk.Frame(win, bg='white', pady=5)
+    btn_f = tk.Frame(win, bg=bg_color, pady=5)
     btn_f.pack(fill=tk.X)
     
     if app.is_normalized_var.get():
@@ -304,7 +313,7 @@ def _plot_drt_popup(app, tau, gamma, label):
         r_unit = "Ω"
         r_name = "R"
         
-    tk.Label(btn_f, textvariable=res_var, font=('Segoe UI', 12, 'bold'), bg='white', fg='#2E7D32').pack(side=tk.LEFT, padx=20)
+    tk.Label(btn_f, textvariable=res_var, font=('Segoe UI', 12, 'bold'), bg=bg_color, fg=drt_res_fg).pack(side=tk.LEFT, padx=20)
     
     def save_peak():
         if app._drt_temp_peak:
@@ -320,13 +329,13 @@ def _plot_drt_popup(app, tau, gamma, label):
     tk.Button(btn_f, text=_('drt_save_peak', '➕ Save Peak'), command=save_peak, bg="#43A047", fg="white", font=('Segoe UI', 9, 'bold')).pack(side=tk.LEFT, padx=5)
     tk.Button(btn_f, text=_('drt_clear_peaks', '🧹 Clear All'), command=clear_peaks, bg="#E53935", fg="white", font=('Segoe UI', 9, 'bold')).pack(side=tk.LEFT, padx=5)
 
-    fig = Figure(figsize=(14, 9), dpi=100, facecolor='white')
+    fig = Figure(figsize=(14, 9), dpi=100, facecolor=bg_color)
     ax = fig.add_subplot(111)
     
     canvas = FigureCanvasTkAgg(fig, master=win)
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
     
-    tb_frame = tk.Frame(win, bg='white')
+    tb_frame = tk.Frame(win, bg=bg_color)
     tb_frame.pack(side=tk.BOTTOM, fill=tk.X)
     NavigationToolbar2Tk(canvas, tb_frame)
     
@@ -395,15 +404,21 @@ def _plot_drt_popup(app, tau, gamma, label):
 # ─── DRT TAB SETUP ENTRYPOINT ────────────────────────────────────────────────
 
 def setup_drt_tab(app):
+    is_dark = app.is_dark
     main_f = ttk.Frame(app.tab_drt, padding=20)
     main_f.pack(fill=tk.BOTH, expand=True)
 
     # 1. Projekto pasirinkimas
     pf = ttk.LabelFrame(main_f, text=_('drt_project_section', 'DearEIS Project File (shared with Arrhenius tab)'), padding=10)
     pf.pack(fill=tk.X, pady=5)
-    ttk.Label(pf, textvariable=app.arr_project_path_var, font=('Segoe UI', 8), foreground='#555', wraplength=800).pack(fill=tk.X, expand=True)
+    ttk.Label(pf, textvariable=app.arr_project_path_var, font=('Segoe UI', 8), 
+              foreground='#a0a0a0' if is_dark else '#555', wraplength=800).pack(fill=tk.X, expand=True)
     tk.Button(pf, text=_('refresh_drt_btn', '🔄 Refresh Datasets from Project'), command=lambda: _refresh_drt_datasets(app), 
-              bg="#E0E0E0", relief="raised", bd=2).pack(pady=5)
+              bg="#333333" if is_dark else "#E0E0E0",
+              fg="#e0e0e0" if is_dark else "black",
+              activebackground="#444444" if is_dark else "#CCCCCC",
+              activeforeground="#e0e0e0" if is_dark else "black",
+              relief="raised", bd=2).pack(pady=5)
 
     # 2. Dataseto pasirinkimas
     ds_f = ttk.LabelFrame(main_f, text=_('drt_select_temp', 'Select Temperature (Dataset)'), padding=10)

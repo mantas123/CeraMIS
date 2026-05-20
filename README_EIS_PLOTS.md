@@ -26,26 +26,29 @@ Taikant šį geometrinį normalizavimą, visi grafikai yra atvaizduojami fizikin
 
 1.  **Savitasis realusis laidumas ($\sigma'$)**:
     $$\sigma' = \frac{Z_n'}{|Z_n|^2} = \frac{Z_n'}{(Z_n')^2 + (Z_n'')^2} \quad (\text{S/m})$$
-2.  **Reali dielektrinė skvarba ($\varepsilon'$)**:
+2.  **Savitoji talpa / menamoji laidumas ($\sigma''$)**:
+    $$\sigma'' = \frac{-Z_n''}{|Z_n|^2} = \frac{-Z_n''}{(Z_n')^2 + (Z_n'')^2} \quad (\text{S/m})$$
+    $\sigma'$ prieš $\sigma''$ grafikas (Nyquist tipo laidumo erdvėje) leidžia atskirti rezistyvinę ir talpinę sudedamąsias.
+3.  **Reali dielektrinė skvarba ($\varepsilon'$)**:
     $$\varepsilon' = \frac{-Z_n''}{\omega \cdot \varepsilon_0 \cdot |Z_n|^2} \quad (\text{vnt.})$$
     *   $\omega = 2 \pi f$ – kampinis dažnis ($\text{rad/s}$),
     *   $\varepsilon_0 \approx 8.8541878 \times 10^{-12}\,\text{F/m}$ – elektrinė konstanta (vakuumo dielektrinė skvarba).
-3.  **Dielektriniai nuostoliai ($\varepsilon''$)**:
+4.  **Dielektriniai nuostoliai ($\varepsilon''$)**:
     $$\varepsilon'' = \frac{Z_n'}{\omega \cdot \varepsilon_0 \cdot |Z_n|^2} \quad (\text{vnt.})$$
-4.  **Dielektrinių nuostolių tangentas ($\tan \delta$)**:
+5.  **Dielektrinių nuostolių tangentas ($\tan \delta$)**:
     $$\tan \delta = \frac{\varepsilon''}{\varepsilon'}$$
-5.  **Elektrinis modulis ($M''$)**:
+6.  **Elektrinis modulis ($M''$)**:
     $$M'' = \omega \cdot \varepsilon_0 \cdot Z_n' \quad (\text{vnt.})$$
-6.  **Summerfield skalavimas (Universalus laidumo dėsnis)**:
+7.  **Summerfield skalavimas (Universalus laidumo dėsnis)**:
     Naudojamas analizuoti jonų šokinėjimo (hopping) dinamiką nepriklausomai nuo temperatūros:
     *   Absoliutinis X taškas: $X = \frac{f}{\sigma_{dc} \cdot T}$
     *   Absoliutinis Y taškas: $Y = \frac{\sigma'}{\sigma_{dc}}$
     *   $\sigma_{dc}$ apskaičiuojama kaip minimali savitojo laidumo vertė žemų dažnių srityje ($\sigma_{dc} \approx \min(\sigma')$).
-7.  **Pseudo-DRT (atsipalaidavimo trukmių pasiskirstymo aproksimacija)**:
+8.  **Pseudo-DRT (atsipalaidavimo trukmių pasiskirstymo aproksimacija)**:
     Greitasis metodas piko dažniams identifikuoti neatliekant sudėtingo integralinio dekonvoliutavimo:
     $$\text{Pseudo-DRT} = -\frac{dZ_n'}{d(\log_{10} f)}$$
     Skaičiuojama naudojant skaitinį gradientą išilgai logaritminės dažnio ašies.
-8.  **Cole-Cole grafikas**:
+9.  **Cole-Cole grafikas**:
     Vaizduoja dielektrinių nuostolių priklausomybę nuo realiosios dielektrinės skvarbos: $\varepsilon''$ priklausomybė nuo $\varepsilon'$.
 
 ---

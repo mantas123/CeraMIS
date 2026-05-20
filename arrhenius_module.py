@@ -26,7 +26,7 @@ from matplotlib.widgets import RectangleSelector
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-from language_driver import _, get_config_val
+from language_driver import _, get_config_val, get_config_bool
 
 DEFAULT_PROJECT_PATH = get_config_val('default_deareis_project', r"C:/Users/bigma/OneDrive/BAKALAURAS fiz/4 KURSAS/Bakalauras/rezultatai/dearEIS LLTO nuo 145k iki 1060K.json")
 EPS_0_SI = 8.854187817e-14  # F/cm
@@ -195,6 +195,7 @@ def extract_fit_data(project: dict, L_cm: float, A_cm2: float,
 # ─── ARENIJAUS TABUI IR GRAFIKAMS REIKALINGOS FUNKCIJOS ─────────────────────
 
 def setup_arrhenius_tab(app):
+    is_dark = app.is_dark
     # UI kintamieji
     app.arr_project_path_var = tk.StringVar()
     app.arr_status_var = tk.StringVar(value=_('arr_status_waiting', 'Waiting for project...'))
@@ -202,6 +203,7 @@ def setup_arrhenius_tab(app):
     app.arr_fit_index_var = tk.StringVar(value='0')
     app.arr_fit_info_var = tk.StringVar(value=_('arr_load_proj_placeholder', '(load project)'))
     app.arr_ea_label_var = tk.StringVar(value='')
+    app.arr_break_label_var = tk.StringVar(value='')
     app.arr_reg_params = [None, None]
     app.arr_point_info_var = tk.StringVar(value=_('arr_click_point_info', 'Click a point for details'))
     app.arr_r_check_vars = {}
@@ -214,7 +216,12 @@ def setup_arrhenius_tab(app):
     pf = ttk.LabelFrame(main_arr_f, text=_('arr_project_section', 'DearEIS Project File (.json)'), padding=10)
     pf.pack(fill=tk.X, pady=5)
     ttk.Entry(pf, textvariable=app.arr_project_path_var, width=50).pack(side=tk.LEFT, fill=tk.X, expand=True)
-    tk.Button(pf, text=_('arr_browse_btn', 'Browse...'), command=lambda: browse_dear_project(app), bg="#E0E0E0", relief="raised", bd=2).pack(side=tk.LEFT, padx=6)
+    tk.Button(pf, text=_('arr_browse_btn', 'Browse...'), command=lambda: browse_dear_project(app), 
+              bg="#333333" if is_dark else "#E0E0E0",
+              fg="#e0e0e0" if is_dark else "black",
+              activebackground="#444444" if is_dark else "#CCCCCC",
+              activeforeground="#e0e0e0" if is_dark else "black",
+              relief="raised", bd=2).pack(side=tk.LEFT, padx=6)
 
     fit_f = ttk.LabelFrame(main_arr_f, text=_('arr_fit_select_title', 'Fitting Result Selection'), padding=10)
     fit_f.pack(fill=tk.X, pady=5)
@@ -224,7 +231,9 @@ def setup_arrhenius_tab(app):
     ttk.Radiobutton(rb_f, text=_('arr_fit_first', 'First'), variable=app.arr_fit_mode_var, value='first').pack(side=tk.LEFT, padx=6)
     ttk.Radiobutton(rb_f, text=_('arr_fit_index_label', 'By Index:'), variable=app.arr_fit_mode_var, value='index').pack(side=tk.LEFT, padx=6)
     ttk.Entry(rb_f, textvariable=app.arr_fit_index_var, width=5).pack(side=tk.LEFT)
-    ttk.Label(fit_f, textvariable=app.arr_fit_info_var, foreground='#555', font=('Segoe UI', 8), wraplength=700).pack(anchor=tk.W, padx=4, pady=2)
+    ttk.Label(fit_f, textvariable=app.arr_fit_info_var, 
+              foreground='#a0a0a0' if is_dark else '#555', 
+              font=('Segoe UI', 8), wraplength=700).pack(anchor=tk.W, padx=4, pady=2)
 
     app.arr_r_outer = ttk.LabelFrame(main_arr_f, text=_('arr_component_sel', 'Resistance Component Selection for Arrhenius Fit'), padding=10)
     app.arr_r_outer.pack(fill=tk.X, pady=5)
@@ -249,6 +258,8 @@ def setup_arrhenius_tab(app):
     app._arr_saved_artists = []
     app._arr_active_idx = None
     app._arr_active_marker = None
+    app._arr_is_dragging = False
+    app._arr_drag_pending = False
 
 
 def browse_dear_project(app):
@@ -410,6 +421,16 @@ def draw_arrhenius_plot(app):
 
     # Sukuriame naują langą grafikui
     arr_win = tk.Toplevel(app.root)
+    is_dark = get_config_bool('dark_mode', False)
+    bg_color = '#252526' if is_dark else 'white'
+    fg_color = '#e0e0e0' if is_dark else '#000000'
+    sub_fg_color = '#a0a0a0' if is_dark else '#555'
+    ea_fg = '#ff6b6b' if is_dark else '#B71C1C'
+    pt_info_fg = '#81c784' if is_dark else '#2E7D32'
+    extrap_res_fg = '#64b5f6' if is_dark else '#1565C0'
+    
+    if is_dark:
+        arr_win.configure(bg=bg_color)
     
     # Nustatome dinaminį pavadinimą pagal parinktas varžas
     r_sel = [rk for rk, var in app.arr_r_check_vars.items() if var.get()]
@@ -423,49 +444,65 @@ def draw_arrhenius_plot(app):
     app.center_window(arr_win, 1200, 900)
 
     # Ea label ir pasirinkimo mygtukai viršuje
-    ctrl_f = tk.Frame(arr_win, bg='white', padx=10, pady=5)
+    ctrl_f = tk.Frame(arr_win, bg=bg_color, padx=10, pady=5)
     ctrl_f.pack(fill=tk.X)
     
-    tk.Label(ctrl_f, textvariable=app.arr_ea_label_var, foreground='#B71C1C', 
-             font=('Segoe UI', 12, 'bold'), bg='white').pack(side=tk.LEFT)
+    tk.Label(ctrl_f, textvariable=app.arr_ea_label_var, foreground=ea_fg, 
+             font=('Segoe UI', 12, 'bold'), bg=bg_color).pack(side=tk.LEFT)
              
-    tk.Label(ctrl_f, textvariable=app.arr_point_info_var, foreground='#2E7D32',
-             font=('Segoe UI', 10, 'bold'), bg='white').pack(side=tk.RIGHT, padx=20)
+    tk.Label(ctrl_f, textvariable=app.arr_point_info_var, foreground=pt_info_fg,
+             font=('Segoe UI', 10, 'bold'), bg=bg_color).pack(side=tk.RIGHT, padx=20)
+    
+    # Break label frame below ctrl_f
+    break_f = tk.Frame(arr_win, bg=bg_color, padx=10, pady=5)
+    break_f.pack(fill=tk.X)
+    
+    tk.Label(break_f, textvariable=app.arr_break_label_var, 
+             foreground='#F57C00' if is_dark else '#E65100',
+             font=('Segoe UI', 11, 'bold'), bg=bg_color).pack(side=tk.LEFT)
     
     # Ekstrapoliacijos sekcija
-    extrap_f = tk.LabelFrame(arr_win, text=_('arr_extrapolate_title', 'Conductivity Extrapolation'), bg='white', padx=10, pady=5)
+    extrap_f = tk.LabelFrame(arr_win, text=_('arr_extrapolate_title', 'Conductivity Extrapolation'), bg=bg_color, fg=fg_color, padx=10, pady=5)
     extrap_f.pack(fill=tk.X, padx=10, pady=5)
     
-    tk.Label(extrap_f, text=_('arr_temp_target', 'Target Temp (°C):'), bg='white').pack(side=tk.LEFT, padx=5)
+    tk.Label(extrap_f, text=_('arr_temp_target', 'Target Temp (°C):'), bg=bg_color, fg=fg_color).pack(side=tk.LEFT, padx=5)
     app.arr_extrap_t_var = tk.StringVar(value='25')
     ext_t_entry = ttk.Entry(extrap_f, textvariable=app.arr_extrap_t_var, width=8)
     ext_t_entry.pack(side=tk.LEFT, padx=5)
-    tk.Label(extrap_f, text='°C', bg='white').pack(side=tk.LEFT)
+    tk.Label(extrap_f, text='°C', bg=bg_color, fg=fg_color).pack(side=tk.LEFT)
     
     app.arr_extrap_res_var = tk.StringVar(value='')
-    app.arr_extrap_res_label = tk.Label(extrap_f, textvariable=app.arr_extrap_res_var, foreground='#1565C0',
-             font=('Segoe UI', 10, 'bold'), bg='white')
+    app.arr_extrap_res_label = tk.Label(extrap_f, textvariable=app.arr_extrap_res_var, foreground=extrap_res_fg,
+             font=('Segoe UI', 10, 'bold'), bg=bg_color)
     app.arr_extrap_res_label.pack(side=tk.LEFT, padx=30)
     
     app.arr_extrap_t_var.trace_add('write', lambda *args: _update_arr_extrapolation(app, *args))
     
-    btn_sel_f = tk.Frame(arr_win, bg='white', padx=10, pady=5)
+    btn_sel_f = tk.Frame(arr_win, bg=bg_color, padx=10, pady=5)
     btn_sel_f.pack(fill=tk.X)
-    tk.Label(btn_sel_f, text=_('arr_regression_label', 'Regression:'), bg='white', font=('Segoe UI', 9, 'bold')).pack(side=tk.LEFT, padx=5)
+    tk.Label(btn_sel_f, text=_('arr_regression_label', 'Regression:'), bg=bg_color, fg=fg_color, font=('Segoe UI', 9, 'bold')).pack(side=tk.LEFT, padx=5)
     tk.Button(btn_sel_f, text=_('arr_select_all', 'Select All Points'), command=lambda: _select_all_arr_points(app), 
-              bg="#E0E0E0", relief="raised", bd=2).pack(side=tk.LEFT, padx=5)
+              bg="#333333" if is_dark else "#E0E0E0",
+              fg="#e0e0e0" if is_dark else "black",
+              activebackground="#444444" if is_dark else "#CCCCCC",
+              activeforeground="#e0e0e0" if is_dark else "black",
+              relief="raised", bd=2).pack(side=tk.LEFT, padx=5)
     tk.Button(btn_sel_f, text=_('arr_deselect_all', 'Deselect All Points'), command=lambda: _clear_arr_sel(app), 
-              bg="#E0E0E0", relief="raised", bd=2).pack(side=tk.LEFT, padx=5)
+              bg="#333333" if is_dark else "#E0E0E0",
+              fg="#e0e0e0" if is_dark else "black",
+              activebackground="#444444" if is_dark else "#CCCCCC",
+              activeforeground="#e0e0e0" if is_dark else "black",
+              relief="raised", bd=2).pack(side=tk.LEFT, padx=5)
     
     # Nauji mygtukai kelioms linijoms
-    line_ctrl_f = tk.Frame(arr_win, bg='white', padx=10, pady=5)
+    line_ctrl_f = tk.Frame(arr_win, bg=bg_color, padx=10, pady=5)
     line_ctrl_f.pack(fill=tk.X)
     tk.Button(line_ctrl_f, text=_('arr_save_line_btn', '➕ Save Regression Line'), command=lambda: _save_arr_line(app),
               bg="#43A047", fg="white", font=('Segoe UI', 9, 'bold'), relief="raised", bd=2).pack(side=tk.LEFT, padx=5)
     tk.Button(line_ctrl_f, text=_('arr_clear_lines_btn', '🧹 Clear Saved Lines'), command=lambda: _clear_saved_arr_lines(app),
               bg="#E53935", fg="white", font=('Segoe UI', 9, 'bold'), relief="raised", bd=2).pack(side=tk.LEFT, padx=5)
 
-    app.arr_fig = Figure(figsize=(9, 6), dpi=100, facecolor='white')
+    app.arr_fig = Figure(figsize=(9, 6), dpi=100, facecolor=bg_color)
     app.arr_ax = app.arr_fig.add_subplot(111)
     app.arr_ax.grid(True, alpha=0.3)
     
@@ -480,25 +517,50 @@ def draw_arrhenius_plot(app):
     app._arr_saved_artists = []
     app._arr_saved_lines = []
 
+    def _get_selection_from_box(eclick, erelease):
+        """Returns (xmin, xmax, ymin, ymax) from the current RectangleSelector extents."""
+        if getattr(app, 'arr_rs', None) is not None:
+            return app.arr_rs.extents  # (xmin, xmax, ymin, ymax)
+        xmin, xmax = sorted([eclick.xdata, erelease.xdata])
+        ymin, ymax = sorted([eclick.ydata, erelease.ydata])
+        return xmin, xmax, ymin, ymax
+
     def on_arr_select(eclick, erelease):
+        """Called continuously while dragging – only fast visual update, no heavy computation."""
         df = app._arr_df_cache[0]
         if df is None: return
         xall, yall = df['1000/T'].values, df['ln(Sigma*T)'].values
         valid = ~(np.isnan(xall) | np.isnan(yall))
         x_v, y_v = xall[valid], yall[valid]
-        xmin, xmax = sorted([eclick.xdata, erelease.xdata])
-        ymin, ymax = sorted([eclick.ydata, erelease.ydata])
-        is_select = (eclick.button == 1)
+
+        xmin, xmax, ymin, ymax = _get_selection_from_box(eclick, erelease)
+        if (xmax - xmin) < 1e-4 or (ymax - ymin) < 1e-4:
+            return
+
+        is_left_click = (eclick.button == 1)
         for i in range(len(x_v)):
-            if xmin <= x_v[i] <= xmax and ymin <= y_v[i] <= ymax:
-                app._arr_point_selected[i] = is_select
-        _recompute_arr_regression(app)
+            in_box = (xmin <= x_v[i] <= xmax and ymin <= y_v[i] <= ymax)
+            if is_left_click:
+                app._arr_point_selected[i] = in_box
+            else:
+                if in_box:
+                    app._arr_point_selected[i] = False
+
+        app._arr_is_dragging = True
+        _fast_update_arr_selection(app)  # fast: only moves scatter data, no legend/breakpoint
+
+    def on_arr_release(event):
+        """Called once when the mouse button is released – do the full expensive update."""
+        if app._arr_is_dragging:
+            app._arr_is_dragging = False
+            _recompute_arr_regression(app)  # full update with legend, break point, etc.
 
     props = dict(facecolor='#1565C0', alpha=0.2, edgecolor='black', linewidth=1)
     app.arr_rs = RectangleSelector(app.arr_ax, on_arr_select,
                                     useblit=False, button=[1, 3],
                                     minspanx=0, minspany=0,
-                                    interactive=False, props=props)
+                                    interactive=True, props=props)
+    app.arr_canvas.mpl_connect('button_release_event', on_arr_release)
     
     app.arr_canvas.mpl_connect('button_press_event', lambda ev: _on_arr_plot_click(app, ev))
     app.arr_canvas.mpl_connect('key_press_event', lambda ev: _on_arr_key_press(app, ev))
@@ -572,7 +634,7 @@ def draw_arrhenius_plot(app):
     
     # Instrukcijų label apačioje
     tk.Label(arr_win, text=_('arr_instructions', "🖱️ Drag selection box (left/right click) to select/deselect points. 🎯 Click a point for info."), 
-             bg='#f0f0f0', font=('Segoe UI', 9, 'italic'), pady=3).pack(side=tk.BOTTOM, fill=tk.X)
+             bg='#252526' if is_dark else '#f0f0f0', fg=fg_color, font=('Segoe UI', 9, 'italic'), pady=3).pack(side=tk.BOTTOM, fill=tk.X)
 
     # Galiausiai supakuojame canvas, kad jis užimtų likusią laisvą vietą
     app.arr_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -590,7 +652,174 @@ def draw_arrhenius_plot(app):
     arr_win.after(200, force_refresh)
 
 
+def _calculate_arr_break_point(app):
+    df = app._arr_df_cache[0]
+    if df is None: return None
+    xall, yall = df['1000/T'].values, df['ln(Sigma*T)'].values
+    valid = ~(np.isnan(xall) | np.isnan(yall))
+    x_v, y_v = xall[valid], yall[valid]
+    
+    # Get selected indices
+    sel_idx = [i for i in range(len(x_v)) if app._arr_point_selected.get(i, True)]
+    if len(sel_idx) < 4:
+        return None  # Need at least 4 points to split into two lines (at least 2 points each)
+        
+    # Extract and sort selected points by x (which is 1000/T)
+    xs = x_v[sel_idx]
+    ys = y_v[sel_idx]
+    
+    sort_idx = np.argsort(xs)
+    xs_sorted = xs[sort_idx]
+    ys_sorted = ys[sort_idx]
+    
+    N = len(xs_sorted)
+    best_k = -1
+    best_sse = float('inf')
+    best_fit1 = None
+    best_fit2 = None
+    
+    # Grid search for the optimal split index k
+    # Line 1 fits indices 0 ... k (inclusive) -> has k+1 points
+    # Line 2 fits indices k ... N-1 (inclusive) -> has N-k points
+    # Both need at least 2 points, so:
+    # k+1 >= 2 => k >= 1
+    # N-k >= 2 => k <= N-2
+    for k in range(1, N - 1):
+        x1, y1 = xs_sorted[0:k+1], ys_sorted[0:k+1]
+        x2, y2 = xs_sorted[k:N], ys_sorted[k:N]
+        
+        # Fit Line 1
+        slope1, intercept1, r1, p1, se1 = stats.linregress(x1, y1)
+        # Fit Line 2
+        slope2, intercept2, r2, p2, se2 = stats.linregress(x2, y2)
+        
+        # Calculate sum of squared errors (SSE)
+        fit1_y = slope1 * x1 + intercept1
+        fit2_y = slope2 * x2 + intercept2
+        
+        sse1 = np.sum((y1 - fit1_y) ** 2)
+        sse2 = np.sum((y2 - fit2_y) ** 2)
+        total_sse = sse1 + sse2
+        
+        if total_sse < best_sse:
+            best_sse = total_sse
+            best_k = k
+            best_fit1 = (slope1, intercept1, r1)
+            best_fit2 = (slope2, intercept2, r2)
+            
+    if best_k == -1 or best_fit1 is None or best_fit2 is None:
+        return None
+        
+    m1, c1, r1 = best_fit1
+    m2, c2, r2 = best_fit2
+    
+    # Avoid division by zero if slopes are identical
+    if abs(m1 - m2) < 1e-6:
+        return None
+        
+    # Calculate intersection point in 1000/T
+    x_int = (c2 - c1) / (m1 - m2)
+    
+    # Check if x_int is within the range of our selected points
+    if not (xs_sorted.min() <= x_int <= xs_sorted.max()):
+        return None
+        
+    y_int = m1 * x_int + c1
+    
+    # Convert x_int (1000/T) to temperature: T = 1000 / x_int
+    T_K = 1000.0 / x_int
+    T_C = T_K - 273.15
+    
+    # Calculate activation energies: Ea = -slope * kB * 1000
+    kB = 8.617333e-5
+    Ea1 = -m1 * kB * 1000
+    Ea2 = -m2 * kB * 1000
+    
+    return {
+        'x_int': x_int,
+        'y_int': y_int,
+        'T_K': T_K,
+        'T_C': T_C,
+        'Ea1': Ea1,
+        'Ea2': Ea2,
+        'r1_2': r1 ** 2,
+        'r2_2': r2 ** 2,
+        'm1': m1,
+        'c1': c1,
+        'm2': m2,
+        'c2': c2,
+        'xs_sorted': xs_sorted,
+        'ys_sorted': ys_sorted,
+        'split_idx': best_k
+    }
+
+
+def _fast_update_arr_selection(app):
+    """Greitas taškų spalvų atnaujinimas drag metu – be pilno perbraižymo.
+    
+    Naudoja set_offsets() metodą (DearEIS dpg.set_value() ekvivalentas matplotlib):
+    scatter objektai sukuriami vieną kartą ir tik atnaujinami in-place.
+    Regresijos linija taip pat atnaujinama be legend perbraižymo.
+    """
+    df = app._arr_df_cache[0]
+    if df is None: return
+    xall, yall = df['1000/T'].values, df['ln(Sigma*T)'].values
+    valid = ~(np.isnan(xall) | np.isnan(yall))
+    x_v, y_v = xall[valid], yall[valid]
+    n = len(x_v)
+
+    sel_idx = [i for i in range(n) if app._arr_point_selected.get(i, True)]
+    unsel_idx = [i for i in range(n) if not app._arr_point_selected.get(i, True)]
+
+    # Jei scatter objektai dar nesukurti – sukuriame juos vieną kartą
+    if app._arr_scatter_sel is None:
+        app._arr_scatter_sel = app.arr_ax.scatter([], [], c='#1565C0', s=70, zorder=5)
+    if app._arr_scatter_unsel is None:
+        app._arr_scatter_unsel = app.arr_ax.scatter([], [], facecolors='none', edgecolors='#aaa', s=70, zorder=4)
+    if app._arr_reg_line is None:
+        app._arr_reg_line = app.arr_ax.plot([], [], 'r--', lw=1.5, zorder=3)
+
+    # Atnaujinti taškų pozicijas – greita operacija (nekeičia grafo struktūros)
+    if sel_idx:
+        app._arr_scatter_sel.set_offsets(np.c_[x_v[sel_idx], y_v[sel_idx]])
+        app._arr_scatter_sel.set_visible(True)
+    else:
+        app._arr_scatter_sel.set_offsets(np.empty((0, 2)))
+
+    if unsel_idx:
+        app._arr_scatter_unsel.set_offsets(np.c_[x_v[unsel_idx], y_v[unsel_idx]])
+        app._arr_scatter_unsel.set_visible(True)
+    else:
+        app._arr_scatter_unsel.set_offsets(np.empty((0, 2)))
+
+    # Greita regresijos linija (be break point)
+    line = app._arr_reg_line[0]
+    if len(sel_idx) >= 2:
+        xs, ys = x_v[sel_idx], y_v[sel_idx]
+        slope, intercept, r_val, _p, _se = stats.linregress(xs, ys)
+        xfit = np.linspace(xs.min(), xs.max(), 100)
+        line.set_data(xfit, slope * xfit + intercept)
+        line.set_visible(True)
+        kB = 8.617333e-5
+        ea_now = -slope * kB * 1000
+        sigma0_now = np.exp(intercept)
+        app.arr_reg_params[0], app.arr_reg_params[1] = slope, intercept
+        # Atnaujinamas label realiu laiku drag metu
+        app.arr_ea_label_var.set(f'Eₐ = {format_comma(ea_now, 4)} eV  |  σ₀ = {to_sci_unicode(sigma0_now, 3)} S·K/cm  |  R² = {format_comma(r_val**2, 4)}')
+    else:
+        line.set_data([], [])
+        line.set_visible(False)
+        app.arr_reg_params[0] = None
+        app.arr_ea_label_var.set(_('arr_select_pts_for_reg', '(select points for regression)'))
+
+    # Piešiame tik tai kas pasikeitė (naudojame draw_idle – matplotlib pats optimizuoja)
+    app.arr_canvas.draw_idle()
+
+
 def _recompute_arr_regression(app):
+    """Pilnas perbraižymas su legenda, break point ir saved linijomis.
+    Iškviečiamas tik baigus drag (button_release) arba po kitų veiksmų.
+    """
     df = app._arr_df_cache[0]
     if df is None: return
     xall, yall = df['1000/T'].values, df['ln(Sigma*T)'].values
@@ -602,35 +831,41 @@ def _recompute_arr_regression(app):
     sel_idx = [i for i in range(n) if app._arr_point_selected.get(i, True)]
     unsel_idx = [i for i in range(n) if not app._arr_point_selected.get(i, True)]
 
-    if app._arr_scatter_sel is not None: app._arr_scatter_sel.remove()
-    if app._arr_scatter_unsel is not None: app._arr_scatter_unsel.remove()
-    if app._arr_reg_line is not None:
-        try: app._arr_reg_line[0].remove()
-        except: pass
-    
+    # Pašaliname tik saved artists ir break-point elementus (ne scatter!)
     for art in app._arr_saved_artists:
         try: art.remove()
         except: pass
     app._arr_saved_artists = []
-    
+
     if not hasattr(app, '_arr_errorbars'): app._arr_errorbars = []
     for container in app._arr_errorbars:
         try: container.remove()
         except: pass
     app._arr_errorbars = []
 
+    # Sukuriame/atnaujiname scatter objektus (kaip _fast_update, bet su label)
+    if app._arr_scatter_sel is not None:
+        app._arr_scatter_sel.remove()
+    if app._arr_scatter_unsel is not None:
+        app._arr_scatter_unsel.remove()
+    if app._arr_reg_line is not None:
+        try: app._arr_reg_line[0].remove()
+        except: pass
     app._arr_scatter_sel = app._arr_scatter_unsel = app._arr_reg_line = None
 
     if sel_idx:
-        app._arr_scatter_sel = app.arr_ax.scatter(x_v[sel_idx], y_v[sel_idx], c='#1565C0', s=70, zorder=5, label=f"{_('arr_current_pts', 'Current')} ({len(sel_idx)})")
+        app._arr_scatter_sel = app.arr_ax.scatter(
+            x_v[sel_idx], y_v[sel_idx], c='#1565C0', s=70, zorder=5,
+            label=f"{_('arr_current_pts', 'Current')} ({len(sel_idx)})")
     if unsel_idx:
-        app._arr_scatter_unsel = app.arr_ax.scatter(x_v[unsel_idx], y_v[unsel_idx], facecolors='none', edgecolors='#aaa', s=70, zorder=4)
-        
+        app._arr_scatter_unsel = app.arr_ax.scatter(
+            x_v[unsel_idx], y_v[unsel_idx], facecolors='none', edgecolors='#aaa', s=70, zorder=4)
+
     for xi, yi, yei in zip(x_v, y_v, ye_v):
         if not np.isnan(yei) and yei > 0:
             container = app.arr_ax.errorbar(xi, yi, yerr=yei, fmt='none', ecolor='#90CAF9', capsize=3, zorder=2)
             app._arr_errorbars.append(container)
-    
+
     # Braižome išsaugotas linijas ir jų taškus
     cmap = plt.cm.Set1
     for i, ld in enumerate(app._arr_saved_lines):
@@ -651,14 +886,59 @@ def _recompute_arr_regression(app):
         ea_now = -slope * kB * 1000
         sigma0_now = np.exp(intercept)
         app.arr_reg_params[0], app.arr_reg_params[1] = slope, intercept
-        app._arr_reg_line = app.arr_ax.plot(xfit, slope * xfit + intercept, 'r-', lw=2, zorder=3,
-                                             label=fr"{_('active_regression', 'Current')}: $E_a$={format_comma(ea_now, 4)} eV, $\sigma_0$={to_sci_unicode(sigma0_now, 3)} S·K/cm ($R^2$={format_comma(r_val**2, 4)})")
-        app.arr_ea_label_var.set(f'Eₐ = {format_comma(ea_now, 4)} eV  |  σ₀ = {to_sci_unicode(sigma0_now, 3)} S·K/cm  |  R² = {format_comma(r_val**2, 4)}')
+        app._arr_reg_line = app.arr_ax.plot(
+            xfit, slope * xfit + intercept, 'r--', lw=1.5, zorder=3,
+            label=fr"{_('active_regression', 'Current')}: $E_a$={format_comma(ea_now, 4)} eV, "
+                  fr"$\sigma_0$={to_sci_unicode(sigma0_now, 3)} S·K/cm ($R^2$={format_comma(r_val**2, 4)})")
+        app.arr_ea_label_var.set(
+            f'Eₐ = {format_comma(ea_now, 4)} eV  |  σ₀ = {to_sci_unicode(sigma0_now, 3)} S·K/cm  |  R² = {format_comma(r_val**2, 4)}')
         _update_arr_extrapolation(app)
     else:
         app.arr_reg_params[0] = None
         app.arr_ea_label_var.set(_('arr_select_pts_for_reg', '(select points for regression)'))
         _update_arr_extrapolation(app)
+
+    # Clear break label
+    if hasattr(app, 'arr_break_label_var'):
+        app.arr_break_label_var.set('')
+
+    # Calculate and draw break/bend point if we have at least 4 points
+    if len(sel_idx) >= 4:
+        bp = _calculate_arr_break_point(app)
+        if bp is not None:
+            is_dark = get_config_bool('dark_mode', False)
+            color_seg1 = '#64B5F6' if is_dark else '#1976D2'
+            color_seg2 = '#FFB74D' if is_dark else '#F57C00'
+            color_star = '#FFD700'
+            color_vline = '#A0A0A0' if is_dark else '#666666'
+
+            xfit1 = np.linspace(bp['xs_sorted'].min(), bp['x_int'], 150)
+            yfit1 = bp['m1'] * xfit1 + bp['c1']
+            xfit2 = np.linspace(bp['x_int'], bp['xs_sorted'].max(), 150)
+            yfit2 = bp['m2'] * xfit2 + bp['c2']
+
+            line1 = app.arr_ax.plot(xfit1, yfit1, '-', color=color_seg1, lw=2.5, zorder=3,
+                                    label=fr"$E_{{a1}}$: {format_comma(bp['Ea1'], 4)} eV ($R^2$={format_comma(bp['r1_2'], 4)})")
+            app._arr_saved_artists.extend(line1)
+
+            line2 = app.arr_ax.plot(xfit2, yfit2, '-', color=color_seg2, lw=2.5, zorder=3,
+                                    label=fr"$E_{{a2}}$: {format_comma(bp['Ea2'], 4)} eV ($R^2$={format_comma(bp['r2_2'], 4)})")
+            app._arr_saved_artists.extend(line2)
+
+            star = app.arr_ax.plot(bp['x_int'], bp['y_int'], '*', color=color_star, mec='black', mew=1.0, ms=14, zorder=6,
+                                   label=f"{_('arr_break_temp', 'Transition')}: {format_comma(bp['T_C'], 1)} °C")
+            app._arr_saved_artists.extend(star)
+
+            vline = app.arr_ax.axvline(x=bp['x_int'], color=color_vline, linestyle=':', lw=1.5, zorder=2)
+            app._arr_saved_artists.append(vline)
+
+            if hasattr(app, 'arr_break_label_var'):
+                app.arr_break_label_var.set(
+                    _('arr_break_label',
+                      'Transition/Break: T_trans = {temp_c:.1f} °C ({temp_k:.1f} K) | '
+                      'E_a1 = {ea1:.4f} eV (R²={r1:.4f}), E_a2 = {ea2:.4f} eV (R²={r2:.4f})'
+                    ).format(temp_c=bp['T_C'], temp_k=bp['T_K'],
+                             ea1=bp['Ea1'], r1=bp['r1_2'], ea2=bp['Ea2'], r2=bp['r2_2']))
 
     handles, labels = app.arr_ax.get_legend_handles_labels()
     if labels:

@@ -41,6 +41,8 @@ class TranslationManager:
                 'language_settings': 'Language / Kalba',
                 'language_label': 'Select Language (Needs Restart):',
                 'restart_required_lang': 'Language changed. Please restart CeraMIS to apply changes.',
+                'dark_mode_label': 'Dark Mode (Needs Restart):',
+                'restart_required_theme': 'Theme changed. Please restart CeraMIS to apply changes.',
                 
                 # Paths Settings
                 'paths_settings': 'Default Paths / Files',
@@ -428,6 +430,8 @@ class TranslationManager:
                 'arr_instructions': "🖱️ Drag selection box (left/right click) to select/deselect points. 🎯 Click a point for info.",
                 'arr_plot_ready': "Plot ready. Points: {}",
                 'arr_current_pts': "Current",
+                'arr_break_label': "Transition/Break: T_trans = {temp_c:.1f} °C ({temp_k:.1f} K) | E_a1 = {ea1:.4f} eV (R²={r1:.4f}), E_a2 = {ea2:.4f} eV (R²={r2:.4f})",
+                'arr_break_temp': "Transition Temp",
                 'arr_select_pts_for_reg': "(select points for regression)",
                 'arr_need_2_points': "At least 2 selected points are required to save a regression line.",
                 'arr_source_data_point': "Data Point",
@@ -536,6 +540,8 @@ class TranslationManager:
                 'language_settings': 'Kalba / Language',
                 'language_label': 'Pasirinkti kalbą (Reikia perkrauti):',
                 'restart_required_lang': 'Kalba pakeista. Prašome paleisti CeraMIS iš naujo, kad pakeitimai įsigaliotų.',
+                'dark_mode_label': 'Tamsioji tema (Reikalauja perkrovimo):',
+                'restart_required_theme': 'Tema pakeista. Prašome paleisti CeraMIS iš naujo, kad pakeitimai įsigaliotų.',
                 
                 # Paths Settings
                 'paths_settings': 'Numatytieji keliai ir failai',
@@ -923,6 +929,8 @@ class TranslationManager:
                 'arr_instructions': "🖱️ Pele apveskite stačiakampį (kairiu/dešiniu klavišu) taškams pažymėti/atžymėti. 🎯 Spauskite ant taško informacijai.",
                 'arr_plot_ready': "Grafikas paruoštas. Taškai: {}",
                 'arr_current_pts': "Dabartinis",
+                'arr_break_label': "Lūžio taškas: T_lūžis = {temp_c:.1f} °C ({temp_k:.1f} K) | E_a1 = {ea1:.4f} eV (R²={r1:.4f}), E_a2 = {ea2:.4f} eV (R²={r2:.4f})",
+                'arr_break_temp': "Lūžio temperatūra",
                 'arr_select_pts_for_reg': "(pasirinkite taškus regresijai)",
                 'arr_need_2_points': "Reikia bent 2 pasirinktų taškų regresijos tiesei išsaugoti.",
                 'arr_source_data_point': "Duomenų taškas",
@@ -1029,7 +1037,8 @@ class TranslationManager:
             'sam3_model_path': 'sam3.1_multiplex.pt',
             'sam2_model_path': 'sam2.1_hiera_large.pt',
             'default_sem_folder': '',
-            'default_sem_stats_folder': ''
+            'default_sem_stats_folder': '',
+            'dark_mode': 'False'
         }
         try:
             with open(self.config_file, 'w', encoding='utf-8') as configfile:

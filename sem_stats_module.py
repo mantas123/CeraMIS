@@ -33,7 +33,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from scipy.stats import gaussian_kde
 from scipy.signal import find_peaks
 
-from language_driver import _, get_config_val
+from language_driver import _, get_config_val, get_config_bool
 
 # ─── Stulpelių sinonimų žodynas ────────────────────────────────────────────────
 _COL_SYNONYMS = {
@@ -106,7 +106,7 @@ def _build_gui(app):
                               font=("Segoe UI", 9, "bold"))
     files_lf.pack(fill=tk.X, pady=(0, 6))
 
-    app.sem_files_listbox = tk.Listbox(files_lf, height=8, width=45,
+    app.sem_files_listbox = tk.Listbox(files_lf, height=8, width=52,
                                        font=("Segoe UI", 8),
                                        selectmode=tk.EXTENDED)
     app.sem_files_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -117,18 +117,18 @@ def _build_gui(app):
 
     fb = tk.Frame(left)
     fb.pack(fill=tk.X, pady=3)
-    tk.Button(fb, text=_('sem_stats_add_files_btn', "\u2795 Pridėti failus"),
+    tk.Button(fb, text=_('sem_stats_add_files_btn', "➕ Pridėti failus..."),
               command=lambda: _add_files(app),
               bg="#1976D2", fg="white",
-              font=("Segoe UI", 9, "bold"), width=15).pack(side=tk.LEFT, padx=2)
-    tk.Button(fb, text=_('sem_stats_remove_btn', "\U0001f5d1 Pašalinti"),
+              font=("Segoe UI", 9, "bold")).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+    tk.Button(fb, text=_('sem_stats_remove_btn', "🗑️ Pašalinti pažymėtus"),
               command=lambda: _remove_files(app),
               bg="#C62828", fg="white",
-              font=("Segoe UI", 9, "bold"), width=12).pack(side=tk.LEFT, padx=2)
-    tk.Button(fb, text=_('sem_stats_clear_all_btn', "\u2716 Išvalyti viską"),
+              font=("Segoe UI", 9, "bold")).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+    tk.Button(fb, text=_('sem_stats_clear_all_btn', "🧹 Išvalyti viską"),
               command=lambda: _clear_files(app),
               bg="#555", fg="white",
-              font=("Segoe UI", 9, "bold"), width=14).pack(side=tk.LEFT, padx=2)
+              font=("Segoe UI", 9, "bold")).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
 
     # Stulpelių priskyrimas
     col_lf = tk.LabelFrame(left, text=_('sem_stats_col_mapping_title', "Stulpelių priskyrimas"),
@@ -551,13 +551,28 @@ def _show_histogram(app):
 
     win = tk.Toplevel(app.root)
     win.title(_('sem_stats_histogram_win_title', "Grūdelių pasiskirstymo analizė"))
+    
+    is_dark = get_config_bool('dark_mode', False)
+    bg_color = "#252526" if is_dark else "#F5F5F5"
+    fg_color = "#e0e0e0" if is_dark else "#333333"
+    win_bg = "#252526" if is_dark else "white"
+    
+    if is_dark:
+        win.configure(bg=win_bg)
+        
     app.center_window(win, 950, 650)
 
     # Viršutinė juosta pasirinkimui
-    top_bar = tk.Frame(win, pady=5)
+    top_bar = tk.Frame(win, pady=5, bg=bg_color if is_dark else None)
     top_bar.pack(fill=tk.X)
     
-    tk.Label(top_bar, text=_('sem_stats_select_param', "Pasirinkite parametrą: "), font=("Segoe UI", 9, "bold")).pack(side=tk.LEFT, padx=10)
+    lbl_opts = {
+        "text": _('sem_stats_select_param', "Pasirinkite parametrą: "),
+        "font": ("Segoe UI", 9, "bold")
+    }
+    if is_dark:
+        lbl_opts.update({"bg": bg_color, "fg": fg_color})
+    tk.Label(top_bar, **lbl_opts).pack(side=tk.LEFT, padx=10)
     
     # Surandame pirmą prieinamą parametrą numatytajai reikšmei
     available_micro = [k for k in ["diameter", "area", "ff", "aspect", "perimeter", "area_3d", "roughness"] if k in results]
@@ -599,15 +614,15 @@ def _show_histogram(app):
             peak_vals = [x_kde[pi] for pi in peaks_idx]
             if peak_vals:
                 peaks_str = ", ".join([f"{v:.2f}" for v in peak_vals])
-                ax.axvline(peak_vals[0], color='brown', lw=1.5, linestyle='--', alpha=0.7, 
+                ax.axvline(peak_vals[0], color='#ffb74d' if is_dark else 'brown', lw=1.5, linestyle='--', alpha=0.7, 
                            label=_('sem_stats_peaks_legend', "Pikai: {peaks} {unit}").format(peaks=peaks_str, unit=unit))
                 for pv in peak_vals[1:]:
-                    ax.axvline(pv, color='brown', lw=1.5, linestyle='--', alpha=0.7)
+                    ax.axvline(pv, color='#ffb74d' if is_dark else 'brown', lw=1.5, linestyle='--', alpha=0.7)
         except: pass
 
         mean_v = results[p_key]["mean"]
         std_v  = results[p_key]["std"]
-        ax.axvline(mean_v, color='navy', lw=2.5, linestyle=':', 
+        ax.axvline(mean_v, color='#64b5f6' if is_dark else 'navy', lw=2.5, linestyle=':', 
                    label=_('sem_stats_mean_legend', "Vidurkis: {mean:.3f} \u00b1 {std:.3f} {unit}").format(mean=mean_v, std=std_v, unit=unit))
 
         ax.set_xlabel(f"{axis_label}, {unit}", fontsize=11)
@@ -631,10 +646,24 @@ def _show_histogram(app):
     
     for key, label_text in micro_params.items():
         if key in results:
-            tk.Radiobutton(top_bar, text=label_text, variable=param_var, value=key, 
-                           command=update_plot, font=("Segoe UI", 9)).pack(side=tk.LEFT, padx=5)
+            rb_opts = {
+                "text": label_text,
+                "variable": param_var,
+                "value": key,
+                "command": update_plot,
+                "font": ("Segoe UI", 9)
+            }
+            if is_dark:
+                rb_opts.update({
+                    "bg": bg_color,
+                    "fg": fg_color,
+                    "selectcolor": "#1e1e1e",
+                    "activebackground": bg_color,
+                    "activeforeground": fg_color
+                })
+            tk.Radiobutton(top_bar, **rb_opts).pack(side=tk.LEFT, padx=5)
 
-    fig = Figure(figsize=(8.5, 5.5), dpi=100, facecolor="white")
+    fig = Figure(figsize=(8.5, 5.5), dpi=100, facecolor='#252526' if is_dark else 'white')
     ax = fig.add_subplot(111)
     
     canvas = FigureCanvasTkAgg(fig, master=win)
