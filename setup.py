@@ -70,7 +70,7 @@ def main():
         run_cmd([python_exe, "-m", "pip", "install", "-r", req_path])
     else:
         # Jei requirements.txt netyčia dingo, įdiegiame rankiniu būdu
-        libs = ["numpy", "pandas", "matplotlib", "scipy", "lmfit", "pyvista", "pyvistaqt", "PyQt6", "opencv-python", "scikit-image", "openpyxl", "huggingface-hub"]
+        libs = ["numpy", "pandas", "matplotlib", "scipy", "lmfit", "pyvista", "pyvistaqt", "PyQt6", "opencv-python", "scikit-image", "openpyxl", "huggingface-hub", "Pillow"]
         run_cmd([python_exe, "-m", "pip", "install"] + libs)
 
     # 4. Diegiame SAM 2 (Segment Anything)
