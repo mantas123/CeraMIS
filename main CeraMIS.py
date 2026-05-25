@@ -227,10 +227,57 @@ class CeraMISApp:
         self.setup_sem_stats_tab()
         self.setup_settings_tab()
 
-        if os.path.exists(self.current_filepath):
+        # Nuskaitome iš 'results' aplanko, jei jis egzistuoja, arba sukuriame jį
+        results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
+        if not os.path.exists(results_dir):
+            try:
+                os.makedirs(results_dir)
+            except Exception as e:
+                print(f"Nepavyko sukurti 'results' aplanko: {e}")
+
+        found_spectrum = False
+        found_project = False
+
+        if os.path.exists(results_dir):
+            for file in os.listdir(results_dir):
+                filepath = os.path.join(results_dir, file)
+                ext = os.path.splitext(file)[1].lower()
+                
+                # Įkeliame spektro duomenis
+                if not found_spectrum and ext in ['.xlsx', '.z', '.txt']:
+                    self.load_file(filepath)
+                    found_spectrum = True
+                    
+                # Įkeliame dearEIS projektą
+                elif not found_project and ext == '.json':
+                    try:
+                        from arrhenius_module import load_dear_project, get_all_r_keys, get_fit_labels, _refresh_arr_r_checkboxes, _refresh_arr_fit_info
+                        self.arr_project_path_var.set(filepath)
+                        proj = load_dear_project(filepath)
+                        self.arr_state['project'] = proj
+                        self.arr_state['all_r_keys'] = get_all_r_keys(proj)
+                        self.arr_state['fit_labels'] = get_fit_labels(proj)
+                        _refresh_arr_r_checkboxes(self)
+                        _refresh_arr_fit_info(self)
+                        n_ds = len(proj.get('data_sets', []))
+                        self.arr_status_var.set(_('arr_proj_loaded_auto', 'Project loaded automatically. Datasets: {}').format(n_ds))
+                        self._refresh_drt_datasets(show_popup=False)
+                        found_project = True
+                        set_config_val('default_deareis_project', filepath)
+                    except Exception as e:
+                        print(f"Nepavyko automatiškai įkelti dearEIS projekto iš results aplanko: {e}")
+
+            # Nustatome SEM nuotraukų ir statistikos numatytuosius aplankus į results
+            set_config_val('default_sem_folder', results_dir)
+            set_config_val('default_sem_stats_folder', results_dir)
+
+        # Jei 'results' aplanke nebuvo spektro, užkrauname numatytąjį
+        if not found_spectrum and os.path.exists(self.current_filepath):
             self.load_file(self.current_filepath)
             
-        self.load_default_project()
+        # Jei 'results' aplanke nebuvo projekto, užkrauname numatytąjį
+        if not found_project:
+            self.load_default_project()
 
     def open_file_dialog(self):
         filetypes = (
@@ -449,7 +496,7 @@ class CeraMISApp:
         try:
             if os.path.exists("logo.png"):
                 pil_img = Image.open("logo.png")
-                base_height = 220
+                base_height = int(220 * getattr(self, 'gui_scale', 1.0))
                 hpercent = (base_height / float(pil_img.size[1]))
                 wsize = int((float(pil_img.size[0]) * float(hpercent)))
                 pil_img = pil_img.resize((wsize, base_height), Image.Resampling.LANCZOS)
@@ -850,7 +897,7 @@ class CeraMISApp:
             
             # Sukuriame Toplevel langą
             plot_window = tk.Toplevel(self.root)
-            plot_window.title("CeraMIS – LLTO keramikos Mikrostruktūros ir Impedanso Analizės Sistema")
+            plot_window.title("LLTO keramikos Mikrostruktūros ir Impedanso Analizės Sistema")
             plot_window.attributes('-topmost', True) # Laikinai iškeliam į priekį
             
             # Naudojame adaptyvų lango dydį (maksimalus, bet telpa ekrane)

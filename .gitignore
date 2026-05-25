@@ -42,3 +42,7 @@ config.ini
 *.tmp
 .vscode/
 .idea/
+
+# Leisti demo rezultatų aplanką Github'e, kad vartotojai galėtų išbandyti programą
+!results/
+!results/*

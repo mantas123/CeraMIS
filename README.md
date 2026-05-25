@@ -198,7 +198,7 @@ python "main CeraMIS.py"
 ```
 
 > [!NOTE]
-> Paleidus programą, ji automatiškai patikrins, ar nurodytuose keliuose yra numatytieji LLTO duomenų failai (`.xlsx` impedanso duomenys ir `.json` dearEIS projektas). Jei failai nerandami, juos galima lengvai įkelti rankiniu būdu per grafinę sąsają.
+> Paleidus programą, ji automatiškai patikrins šalia esantį `results/` aplanką ir iš jo įkels pirmuosius rastus eksperimentinius duomenis (pvz., `.xlsx`, `.z`, `.json` failus ir SEM nuotraukas). Jūs galite patalpinti ten savo demo rezultatus, kad kiti vartotojai galėtų iškart išbandyti programą. Jei failų šiame aplanke nėra arba norite atidaryti kitus, juos visada galite įkelti rankiniu būdu per grafinę sąsają.
 
 ---
 
