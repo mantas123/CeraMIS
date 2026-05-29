@@ -64,10 +64,10 @@ GRAPH_TYPES = {
     _("Norm. Z'' ir M'' vs f", "Norm. Z'' and M'' vs f"): "norm_z_m_f",
     "Z''/Z''max vs f": "norm_z_f",
     "M''/M''max vs f": "norm_m_f",
-    _("Summerfield skalavimas", "Summerfield scaling"): "summerfield",
+    _("Summerfieldo normavimas", "Summerfield scaling"): "summerfield",
     "Pseudo-DRT (-dZ'/dlogf)": "pseudo_drt",
     _("Naikvisto grafikas", "Nyquist Plot"): "nyquist",
-    _("Pilnutinė varža (|Z|) vs f", "Impedance Spectroscopy (|Z|) vs f"): "abs_Z_f",
+    _("Bodė grafikas (|Z|) vs f", "Bode plot (|Z|) vs f"): "abs_Z_f",
     _("Fazės kampas (-Θ) vs f", "Phase Angle (-Θ) vs f"): "phase_f",
     _("Z' ir -Z'' vs f", "Z' and -Z'' vs f"): "z_real_imag_f",
     _("Bodė grafikas (|Z| ir -Θ)", "Bode Plot (|Z| and -Θ)"): "bode_dual",
@@ -526,11 +526,9 @@ class CeraMISApp:
         graph_frame.pack(side="left", fill="both", expand=True)
         
         self.graph_vars = [tk.StringVar() for _ignore in range(9)]
-        default_graphs = [
-            "Z' vs f", "-Z'' vs f", "ε' vs f",
-            _("Naikvisto grafikas", "Nyquist Plot"), _("Pilnutinė varža (|Z|) vs f", "Impedance Spectroscopy (|Z|) vs f"), _("Fazės kampas (-Θ) vs f", "Phase Angle (-Θ) vs f"),
-            "ε'' vs f", "σ' vs f", "M'' vs f"
-        ]
+        # Use the first 9 graph types from GRAPH_TYPES, which are language-aware via _()
+        default_graphs = list(GRAPH_TYPES.keys())[:9]
+        
         
         for i, default in enumerate(default_graphs):
             self.graph_vars[i].set(default)
@@ -968,7 +966,7 @@ class CeraMISApp:
                 "norm_z_m_f": (r"Normalizuoti $Z''/Z''_{max}$ ir $M''/M''_{max}$", "f, Hz", "Norm. vertė", "log", "linear"),
                 "norm_z_f": (r"Normalizuotas $Z''/Z''_{max}$", "f, Hz", r"$Z''/Z''_{max}$", "log", "linear"),
                 "norm_m_f": (r"Normalizuotas $M''/M''_{max}$", "f, Hz", r"$M''/M''_{max}$", "log", "linear"),
-                "summerfield": ("Summerfield skalavimas", r"$f / (\sigma_{dc} \cdot T)$ [K·Hz·Ω·m]", r"$\sigma_{ac} / \sigma_{dc}$", "log", "log"),
+                "summerfield": ("Summerfieldo normavimas", r"$f / (\sigma_{dc} \cdot T)$, K·Hz·Ω·m", r"$\sigma_{ac} / \sigma_{dc}$", "log", "log"),
                 "pseudo_drt": (r"Pseudo-DRT ($-dZ'/d\log f$)", "f, Hz", r"$-dZ'/d(\log f)$", "log", "linear"),
                 "nyquist": ("Naikvisto grafikas (Z'' nuo Z')", "Z', Ω·m", "-Z'', Ω·m", "linear", "linear"),
                 "z_real_imag_f": ("Z' ir -Z'' priklausomybė nuo dažnio", "f, Hz", "Z' ir -Z'', Ω·m", "log", "log"),
@@ -2104,7 +2102,7 @@ class CeraMISApp:
             Edp_grid = np.array(Edp_grid)
             Th_grid = np.array(Th_grid)
             
-            fig = Figure(figsize=(22, 12), dpi=100, facecolor='#252526' if self.is_dark else 'white')
+            fig = Figure(figsize=(12, 6), dpi=100, facecolor='#252526' if self.is_dark else 'white')
             
             # 1. 3D Naikvisto-Bodė grafikas (Dažnio spiralė)
             ax1 = fig.add_subplot(251, projection='3d')
@@ -2220,7 +2218,7 @@ class CeraMISApp:
                 sw.configure(bg='#252526')
             
             # Naudojame adaptyvų lango dydį
-            w, h = self.center_window(sw, 3200, 1800)
+            w, h = self.center_window(sw, 3000, 2000)
             
             dpi = 100
             fig.set_size_inches(w / dpi, h / dpi)
